@@ -734,7 +734,7 @@ const EVENTS = [
     <li>
       <span class="event-dot-mini ${ev.type}"></span>
       <span class="event-mini-date">${ev.date}</span>
-      <span class="event-mini-title">${ev.title}</span>
+      <span class="event-mini-title">${ev.url ? `<a href="${ev.url}" target="_blank" rel="noopener" style="color:#1F3A5F;text-decoration:none;font-weight:500;">${ev.title}</a>` : ev.title}</span>
     </li>
   `).join('');
 })();
