@@ -218,6 +218,30 @@ tr:nth-child(even) td { background: #f9fafb; }
 .poly-meta a { color: #6366F1; text-decoration: none; }
 .poly-meta a:hover { text-decoration: underline; }
 .poly-snapshot { font-size: 10px; color: #6b7280; background: #f9fafb; border-radius: 4px; padding: 4px 8px; margin-bottom: 10px; }
+
+/* === Mini-événements (page principale) === */
+.events-mini-wrap { background: white; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.events-mini-wrap h4 { margin: 0 0 8px; font-size: 12px; color: #1F3A5F; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.events-mini-list { list-style: none; margin: 0; padding: 0; }
+.events-mini-list li { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f3f4f6; font-size: 12px; }
+.events-mini-list li:last-child { border-bottom: none; }
+.event-dot-mini { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.event-dot-mini.militaire { background: #C0392B; }
+.event-dot-mini.economique { background: #E67E22; }
+.event-dot-mini.politique { background: #2C5282; }
+.event-dot-mini.energetique { background: #27AE60; }
+.event-dot-mini.analyse { background: #7C3AED; }
+.event-mini-date { color: #9ca3af; font-size: 10px; white-space: nowrap; padding-top: 1px; min-width: 68px; }
+.event-mini-title { color: #374151; line-height: 1.4; }
+.events-mini-more { font-size: 11px; color: #6366F1; cursor: pointer; margin-top: 6px; text-align: right; display: block; }
+/* === Graphiques Polymarket === */
+.poly-chart-card { background: white; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid #6366F1; }
+.poly-chart-card h4 { font-size: 12px; font-weight: 600; color: #1F3A5F; margin: 0 0 4px; }
+.poly-current { font-size: 22px; font-weight: 700; }
+.poly-current.high { color: #27AE60; }
+.poly-current.mid { color: #E67E22; }
+.poly-current.low { color: #C0392B; }
+.poly-chart-canvas { max-height: 160px; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 </head>
@@ -260,6 +284,12 @@ tr:nth-child(even) td { background: #f9fafb; }
 
 <div class="info-box dotted">
   <strong><span class="legend-shryock"></span>Prédiction Shryock figée au 8 mai 2026</strong> — la ligne pointillée violette représente le scénario décrit par Mark A. Shryock dans son article. Elle ne bouge jamais. Si la ligne pleine (réalité) reste <strong>sous</strong> la prédiction, signal d'apaisement. Si elle <strong>dépasse</strong>, scénario C se confirme.
+</div>
+
+<div class="events-mini-wrap">
+  <h4>📰 Derniers événements marquants</h4>
+  <ul class="events-mini-list" id="events-mini-list"></ul>
+  <span class="events-mini-more" onclick="document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelector('[data-tab=events]').classList.add('active'); document.getElementById('panel-events').classList.add('active');">Voir tous les événements →</span>
 </div>
 
 <div class="tabs">
@@ -375,7 +405,7 @@ tr:nth-child(even) td { background: #f9fafb; }
 
 <div class="panel" id="panel-polymarket">
   <div class="info-box dotted">
-    <strong>🎯 Marchés prédictifs Polymarket</strong> — probabilités agrégées de traders. Données mises à jour manuellement à chaque rapport. <strong>Ce ne sont pas des conseils financiers.</strong>
+    <strong>🎯 Marchés prédictifs Polymarket</strong> — probabilités OUI agrégées de traders, mise à jour à chaque rapport. <strong>Ce ne sont pas des conseils financiers.</strong>
   </div>
   <div class="poly-snapshot" id="poly-snapshot">Snapshot : —</div>
   <div class="poly-grid" id="poly-grid"></div>
@@ -695,30 +725,89 @@ const EVENTS = [
   `).join('');
 })();
 
+(function renderEventsMini() {
+  const ul = document.getElementById('events-mini-list');
+  if (!ul) return;
+  const sorted = EVENTS.slice().sort((a, b) => b.date.localeCompare(a.date));
+  const recent = sorted.slice(0, 5);
+  ul.innerHTML = recent.map(ev => `
+    <li>
+      <span class="event-dot-mini ${ev.type}"></span>
+      <span class="event-mini-date">${ev.date}</span>
+      <span class="event-mini-title">${ev.title}</span>
+    </li>
+  `).join('');
+})();
+
 // ==================== POLYMARKET ====================
+// Historique des probabilités OUI (%) à chaque rapport
+// Ajouter une ligne à chaque rapport bi-hebdomadaire
+const POLYMARKET_HISTORY = [
+  { date: '2026-05-19', may31: 4, june30: 29, dec31: 76, permanent: 8 },
+  // Prochaine entrée : 2026-05-22 (vendredi)
+];
+
 const POLYMARKETS = [
-  { question: "Trafic Hormuz revient à la normale d'ici le 31 mai 2026 ?", yes: 4, no: 96, url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-may', note: 'Marché fermé le 31 mai — résolution quasi-certaine NON.' },
-  { question: "Trafic Hormuz revient à la normale d'ici le 30 juin 2026 ?", yes: 29, no: 71, url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june', note: 'Impasse Iran-USA prolongée. Déminage estimé à 6 mois minimum.' },
-  { question: "Trafic Hormuz revient à la normale d'ici le 31 déc. 2026 ?", yes: 76, no: 24, url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-december-31', note: 'Les traders parient majoritairement sur une résolution avant la fin de l\'année.' },
-  { question: "L'Iran ferme Hormuz de façon permanente (blocage total) ?", yes: 8, no: 92, url: 'https://polymarket.com/event/will-iran-close-the-strait-of-hormuz-by-2027', note: 'Très faible probabilité de blocage total et permanent selon les marchés.' },
+  { key: 'may31',    question: "Hormuz normal d'ici le 31 mai 2026 ?",   url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-may',    note: 'Marché fermé le 31 mai.' },
+  { key: 'june30',   question: "Hormuz normal d'ici le 30 juin 2026 ?",  url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june',   note: 'Déminage estimé à 6 mois min.' },
+  { key: 'dec31',    question: "Hormuz normal d'ici le 31 déc. 2026 ?",  url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-december-31',   note: 'Résolution probable avant fin 2026 selon traders.' },
+  { key: 'permanent',question: "Iran bloque Hormuz de façon permanente ?", url: 'https://polymarket.com/event/will-iran-close-the-strait-of-hormuz-by-2027', note: 'Très faible probabilité.' },
 ];
 
 (function renderPolymarket() {
   const snapshot = document.getElementById('poly-snapshot');
   const grid = document.getElementById('poly-grid');
   if (!snapshot || !grid) return;
-  snapshot.textContent = 'Snapshot : 19 mai 2026 · Source : Polymarket.com · Mises à jour manuelles à chaque rapport';
+  const lastPoly = POLYMARKET_HISTORY[POLYMARKET_HISTORY.length - 1];
+  const prevPoly = POLYMARKET_HISTORY.length > 1 ? POLYMARKET_HISTORY[POLYMARKET_HISTORY.length - 2] : null;
+  snapshot.textContent = 'Dernier snapshot : ' + lastPoly.date + ' · Source : Polymarket.com · ' + POLYMARKET_HISTORY.length + ' point(s) d\'historique';
+
+  const polyDates = POLYMARKET_HISTORY.map(r => r.date);
+  const chartColors = { may31: '#C0392B', june30: '#E67E22', dec31: '#27AE60', permanent: '#6b7280' };
+
   grid.innerHTML = POLYMARKETS.map(m => `
-    <div class="poly-card">
-      <div class="poly-question">${m.question}</div>
-      <div class="poly-bar-wrap"><div class="poly-bar-yes" style="width:${m.yes}%"></div></div>
-      <div class="poly-labels">
-        <span class="poly-yes">✅ OUI ${m.yes}%</span>
-        <span class="poly-no">❌ NON ${m.no}%</span>
-      </div>
-      <div class="poly-meta">${m.note} · <a href="${m.url}" target="_blank" rel="noopener">Voir sur Polymarket</a></div>
+    <div class="poly-chart-card">
+      <h4><a href="${m.url}" target="_blank" rel="noopener" style="color:#1F3A5F;text-decoration:none;">${m.question}</a></h4>
+      <div class="poly-current ${lastPoly[m.key] >= 60 ? 'high' : lastPoly[m.key] >= 30 ? 'mid' : 'low'}">${lastPoly[m.key]} % OUI${prevPoly ? ' <span style="font-size:13px;font-weight:500;color:' + (lastPoly[m.key] - prevPoly[m.key] > 0 ? '#C0392B' : lastPoly[m.key] - prevPoly[m.key] < 0 ? '#27AE60' : '#6b7280') + '">(' + (lastPoly[m.key] - prevPoly[m.key] > 0 ? '+' : '') + (lastPoly[m.key] - prevPoly[m.key]) + ' pts)</span>' : ''}</div>
+      <canvas class="poly-chart-canvas" id="poly-chart-${m.key}"></canvas>
+      <div class="poly-meta" style="margin-top:4px;">${m.note}</div>
     </div>
   `).join('');
+
+  // Tracer les graphiques après insertion dans le DOM
+  POLYMARKETS.forEach(m => {
+    const ctx = document.getElementById('poly-chart-' + m.key);
+    if (!ctx) return;
+    const vals = POLYMARKET_HISTORY.map(r => r[m.key]);
+    new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: polyDates,
+        datasets: [{
+          label: '% OUI',
+          data: vals,
+          borderColor: chartColors[m.key],
+          backgroundColor: chartColors[m.key] + '22',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2.5,
+          pointRadius: vals.length === 1 ? 5 : 3,
+          pointHoverRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+          x: { ticks: { font: { size: 9 }, maxRotation: 30 } },
+          y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%' }, grid: { color: '#f3f4f6' } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' % OUI' } }
+        }
+      }
+    });
+  });
 })();
 
 let sortCol = 'date';
