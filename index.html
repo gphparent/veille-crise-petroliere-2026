@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Veille — Crise pétrolière 2026</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: transparent;
+  color: #1f2933;
+  margin: 0;
+  padding: 12px;
+  font-size: 14px;
+}
+.header {
+  background: linear-gradient(135deg, #1F3A5F 0%, #2C5282 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.header h1 { margin: 0 0 4px 0; font-size: 18px; }
+.header p { margin: 2px 0; opacity: 0.9; font-size: 12px; }
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+.tab {
+  padding: 8px 14px;
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  font-weight: 500;
+  font-size: 13px;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+.tab.active {
+  background: white;
+  color: #1F3A5F;
+  border-bottom-color: #1F3A5F;
+}
+.tab:hover:not(.active) { background: #f3f4f6; }
+.panel { display: none; }
+.panel.active { display: block; }
+.scenario-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.scenario {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 4px solid;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.scenario.A { border-left-color: #27AE60; }
+.scenario.B { border-left-color: #E67E22; }
+.scenario.C { border-left-color: #C0392B; }
+.scenario h3 { margin: 0; font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 600; }
+.scenario .value { font-size: 24px; font-weight: 700; line-height: 1; margin: 6px 0 2px; }
+.scenario.A .value { color: #27AE60; }
+.scenario.B .value { color: #E67E22; }
+.scenario.C .value { color: #C0392B; }
+.scenario .delta { font-size: 11px; font-weight: 600; margin: 1px 0 0; }
+.scenario .label { font-size: 11px; color: #4b5563; }
+.grid-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 12px;
+}
+.card {
+  background: white;
+  padding: 14px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.card h2 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #1F3A5F;
+  font-weight: 600;
+}
+.card .latest {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1F3A5F;
+  margin: 2px 0 4px;
+}
+.card .vs-shryock {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+.vs-under { background: #D1FAE5; color: #065F46; }
+.vs-over { background: #FEE2E2; color: #991B1B; }
+.vs-on { background: #FEF3C7; color: #92400E; }
+.trend { font-size: 11px; font-weight: 500; }
+.trend.up { color: #C0392B; }
+.trend.down { color: #27AE60; }
+.trend.flat { color: #6b7280; }
+canvas { max-height: 220px; }
+.data-table-wrapper {
+  background: white;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow-x: auto;
+}
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+th {
+  background: #1F3A5F;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  user-select: none;
+}
+th:hover { background: #2C5282; }
+tr:nth-child(even) td { background: #f9fafb; }
+.notes-cell { font-size: 11px; color: #6b7280; white-space: normal; max-width: 240px; }
+.info-box {
+  background: #FFF8E1;
+  border-left: 3px solid #F59E0B;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+.info-box.dotted {
+  background: #EEF2FF;
+  border-left-color: #6366F1;
+}
+.info-box.warning {
+  background: #FEF2F2;
+  border-left-color: #EF4444;
+}
+.info-box.success {
+  background: #F0FFF4;
+  border-left-color: #27AE60;
+}
+.scenarios-detail {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.scenarios-detail h3 { margin: 0 0 8px 0; font-size: 13px; color: #1F3A5F; }
+.scenarios-detail ul { margin: 4px 0 12px 18px; padding: 0; font-size: 12px; }
+.scenarios-detail li { margin: 3px 0; }
+.legend-shryock {
+  display: inline-block;
+  width: 24px;
+  height: 0;
+  border-top: 2px dashed #6366F1;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div class="header">
+  <h1>Veille — Crise pétrolière 2026</h1>
+  <p>Surveillance privée · Usage personnel</p>
+  <p id="last-update">—</p>
+</div>
+
+<div class="scenario-bar">
+  <div class="scenario A">
+    <h3>A — Apaisement</h3>
+    <div class="value" id="prob-A">—</div>
+    <div class="delta" id="delta-A" style="color:#6b7280;"></div>
+    <div class="label">Décélérer le plan</div>
+  </div>
+  <div class="scenario B">
+    <h3>B — Stagflation</h3>
+    <div class="value" id="prob-B">—</div>
+    <div class="delta" id="delta-B" style="color:#6b7280;"></div>
+    <div class="label">Maintenir le plan ✓</div>
+  </div>
+  <div class="scenario C">
+    <h3>C — Escalade</h3>
+    <div class="value" id="prob-C">—</div>
+    <div class="delta" id="delta-C" style="color:#6b7280;"></div>
+    <div class="label">Accélérer encore</div>
+  </div>
+</div>
+
+<div class="info-box warning">
+  <strong>⚠️ Escalade militaire (19 mai)</strong> : Attaque de drones sur la centrale nucléaire de Barakah (UAE, 17 mai). 15 B-1B Lancers prépositionnés à RAF Fairford. Cessez-le-feu au bord du gouffre. Scénario C : 27 % (+12 pts vs baseline).
+</div>
+
+<div class="info-box warning">
+  <strong>⚠️ Essence QC — baisse artificielle depuis le 20 avr.</strong> : la taxe d'accise fédérale est suspendue du 20 avril au 7 sept. 2026. Le prix à la pompe ne reflète pas l'état réel du marché physique.
+</div>
+
+<div class="info-box dotted">
+  <strong><span class="legend-shryock"></span>Prédiction Shryock figée au 8 mai 2026</strong> — la ligne pointillée violette représente le scénario décrit par Mark A. Shryock dans son article. Elle ne bouge jamais. Si la ligne pleine (réalité) reste <strong>sous</strong> la prédiction, signal d'apaisement. Si elle <strong>dépasse</strong>, scénario C se confirme.
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="graphs">📊 Graphiques</div>
+  <div class="tab" data-tab="table">📋 Tableau de données</div>
+  <div class="tab" data-tab="scenarios">⚙️ Scénarios & règles</div>
+</div>
+
+<div class="panel active" id="panel-graphs">
+  <div class="grid-charts">
+    <div class="card">
+      <h2>Probabilités scénarios (aires empilées)</h2>
+      <canvas id="chart-scenarios"></canvas>
+    </div>
+    <div class="card">
+      <h2>Brent paper (USD/baril) <span class="vs-shryock" id="vs-brent"></span></h2>
+      <div class="latest" id="latest-brent">—</div>
+      <canvas id="chart-brent"></canvas>
+    </div>
+    <div class="card">
+      <h2>Brent physique (USD/baril) <span class="vs-shryock" id="vs-brentphys"></span></h2>
+      <div class="latest" id="latest-brentphys">—</div>
+      <canvas id="chart-brentphys"></canvas>
+    </div>
+    <div class="card">
+      <h2>Essence Québec (CAD/L) <span class="vs-shryock" id="vs-essence"></span></h2>
+      <div class="latest" id="latest-essence">—</div>
+      <canvas id="chart-essence"></canvas>
+    </div>
+    <div class="card">
+      <h2>Diesel Québec (CAD/L) <span class="vs-shryock" id="vs-diesel"></span></h2>
+      <div class="latest" id="latest-diesel">—</div>
+      <canvas id="chart-diesel"></canvas>
+    </div>
+    <div class="card">
+      <h2>SPR US (M barils) <span class="vs-shryock" id="vs-spr"></span></h2>
+      <div class="latest" id="latest-spr">—</div>
+      <canvas id="chart-spr"></canvas>
+    </div>
+    <div class="card">
+      <h2>Distillate US vs 5y (%) <span class="vs-shryock" id="vs-distillate"></span></h2>
+      <div class="latest" id="latest-distillate">—</div>
+      <canvas id="chart-distillate"></canvas>
+    </div>
+    <div class="card">
+      <h2>Baker Hughes rig count US <small style="color:#6b7280;font-weight:normal;">(Shryock n/a)</small></h2>
+      <div class="latest" id="latest-rig">—</div>
+      <canvas id="chart-rig"></canvas>
+    </div>
+    <div class="card">
+      <h2>Trafic Hormuz (navires/sem) <span class="vs-shryock" id="vs-hormuz"></span></h2>
+      <div class="latest" id="latest-hormuz">—</div>
+      <canvas id="chart-hormuz"></canvas>
+    </div>
+    <div class="card">
+      <h2>Jet fuel ARA (indice) <span class="vs-shryock" id="vs-jet"></span></h2>
+      <div class="latest" id="latest-jet">—</div>
+      <canvas id="chart-jet"></canvas>
+    </div>
+    <div class="card">
+      <h2>FAO Food Price Index <span class="vs-shryock" id="vs-fao"></span></h2>
+      <div class="latest" id="latest-fao">—</div>
+      <canvas id="chart-fao"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-table">
+  <div class="info-box">
+    Cliquez sur les en-têtes de colonne pour trier. Essence et diesel : données officielles Régie de l'énergie QC (moyenne pondérée provinciale) ou CAA/estimées. Mises à jour mardi + vendredi 9 h.
+  </div>
+  <div class="data-table-wrapper">
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th data-col="date">Date</th>
+          <th data-col="brent_paper_usd">Brent paper</th>
+          <th data-col="brent_physique_usd">Brent phys.</th>
+          <th data-col="essence_qc_cad_litre">Essence QC</th>
+          <th data-col="diesel_qc_cad_litre">Diesel QC</th>
+          <th data-col="spr_us_millions_barils">SPR US</th>
+          <th data-col="distillate_us_vs_5y_pct">Distillate %</th>
+          <th data-col="rig_count_us">Rig count</th>
+          <th data-col="hormuz_ships_per_week">Hormuz</th>
+          <th data-col="jet_fuel_ara_index">Jet ARA</th>
+          <th data-col="fao_food_price_index">FAO</th>
+          <th data-col="scenario_probabilite_A">A %</th>
+          <th data-col="scenario_probabilite_B">B %</th>
+          <th data-col="scenario_probabilite_C">C %</th>
+          <th data-col="notes">Notes</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel" id="panel-scenarios">
+  <div class="scenarios-detail">
+    <h3 style="color:#6366F1;">Méthode : prédiction Shryock figée</h3>
+    <p style="font-size:12px;margin:4px 0;">Les valeurs en pointillé sont les prédictions de Mark A. Shryock, telles que déduites de son article du 8 mai 2026. Elles couvrent la période 8 mai → 31 août 2026 et incluent ses dates critiques : Europe « tank bottoms » fin mai, USA « tank bottoms » 4 juillet, cascade alimentaire juillet-août.</p>
+    <p style="font-size:12px;margin:4px 0;"><strong>Ces valeurs ne changent jamais.</strong> Elles servent de référence pour évaluer la précision du prophète.</p>
+  </div>
+  <div class="scenarios-detail">
+    <h3 style="color:#27AE60;">Scénario A — Apaisement</h3>
+    <p style="font-size:12px;margin:4px 0;">Négociation Iran-USA, Hormuz rouvre partiellement, prix se stabilisent.</p>
+    <p style="font-size:12px;margin:4px 0;"><strong>Action :</strong> décélérer le plan, revenir au calendrier original (août-octobre).</p>
+  </div>
+  <div class="scenarios-detail">
+    <h3 style="color:#E67E22;">Scénario B — Stagflation prolongée</h3>
+    <p style="font-size:12px;margin:4px 0;">Hormuz reste tendu, prix élevés persistants, disruptions sectorielles.</p>
+    <p style="font-size:12px;margin:4px 0;"><strong>Action :</strong> maintenir le plan accéléré, hiver = priorité.</p>
+  </div>
+  <div class="scenarios-detail">
+    <h3 style="color:#C0392B;">Scénario C — Escalade / cascade</h3>
+    <p style="font-size:12px;margin:4px 0;">Élargissement régional, ruptures locales, panique d'achat.</p>
+    <p style="font-size:12px;margin:4px 0;"><strong>Action :</strong> accélérer encore — compléter vague 2 dans la semaine.</p>
+  </div>
+  <div class="scenarios-detail">
+    <h3>Indicateurs déclencheurs de bascule</h3>
+    <ul>
+      <li><strong>A → B :</strong> reprise trafic Hormuz &lt; 50 % ; Brent paper &gt; 90 $ ; essence QC &gt; 2,00 $/L</li>
+      <li><strong>B → C :</strong> Europe en « tank bottoms » confirmé ; faillites aéronautiques en cascade ; rationnement annoncé ; essence QC &gt; 2,50 $/L</li>
+      <li><strong>C → B :</strong> libérations massives SPR coordonnées ; accord Iran-USA ; reprise trafic Hormuz &gt; 60 %</li>
+      <li><strong>B → A :</strong> Brent paper &lt; 80 $ stable ; essence QC &lt; 1,75 $/L ; trafic Hormuz &gt; 80 %</li>
+    </ul>
+  </div>
+  <div class="scenarios-detail">
+    <h3>Garde-fous</h3>
+    <ul>
+      <li>Consultation 2 fois par semaine, point. Pas de doomscrolling entre les rapports.</li>
+      <li>Sources institutionnelles uniquement (EIA, FAO, gouvernement, presse établie).</li>
+      <li>Si bascule vers Scénario C : prendre le temps de réfléchir avant d'agir. La panique ne décide jamais.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  { date: '2026-02-28', brent_paper_usd: 72.50, brent_physique_usd: 75.00, essence_qc_cad_litre: 1.44, diesel_qc_cad_litre: 1.90, spr_us_millions_barils: 398.5, distillate_us_vs_5y_pct: -3, rig_count_us: 578, hormuz_ships_per_week: 840, jet_fuel_ara_index: 108, fao_food_price_index: 121, scenario_probabilite_A: 80, scenario_probabilite_B: 15, scenario_probabilite_C: 5, notes: "Fermeture du détroit d'Hormuz — frappes US/Israël. Essence: 143,8 ¢/L Régie (sem. 23 fév). Diesel: 189,9 ¢/L Régie. Rig count: ~578 Baker Hughes réel." },
+  { date: '2026-03-15', brent_paper_usd: 92.30, brent_physique_usd: 118.00, essence_qc_cad_litre: 1.78, diesel_qc_cad_litre: 2.45, spr_us_millions_barils: 396.2, distillate_us_vs_5y_pct: -7, rig_count_us: 555, hormuz_ships_per_week: 210, jet_fuel_ara_index: 135, fao_food_price_index: 124, scenario_probabilite_A: 55, scenario_probabilite_B: 35, scenario_probabilite_C: 10, notes: "Stocks flottants masquent le choc initial. Essence: 178,2 ¢/L Régie (sem. 16 mars). Diesel: 244,7 ¢/L Régie. Rig count: ~555 interpolé." },
+  { date: '2026-04-07', brent_paper_usd: 98.40, brent_physique_usd: 144.42, essence_qc_cad_litre: 1.92, diesel_qc_cad_litre: 2.61, spr_us_millions_barils: 395.0, distillate_us_vs_5y_pct: -9, rig_count_us: 535, hormuz_ships_per_week: 55, jet_fuel_ara_index: 152, fao_food_price_index: 128, scenario_probabilite_A: 40, scenario_probabilite_B: 45, scenario_probabilite_C: 15, notes: "Pic prix physique — paper détaché du physique. Essence: 191,7 ¢/L Régie (sem. 6 avr, avant suspension taxe). Diesel: 260,9 ¢/L Régie — pic crise." },
+  { date: '2026-05-01', brent_paper_usd: 99.80, brent_physique_usd: 138.00, essence_qc_cad_litre: 1.86, diesel_qc_cad_litre: 2.38, spr_us_millions_barils: 392.7, distillate_us_vs_5y_pct: -11, rig_count_us: 547, hormuz_ships_per_week: 40, jet_fuel_ara_index: 168, fao_food_price_index: 131, scenario_probabilite_A: 30, scenario_probabilite_B: 50, scenario_probabilite_C: 20, notes: "Dernier pétrolier moyen-orient arrive Long Beach 3 mai. Essence: 186,0 ¢/L Régie (sem. 27 avr, après suspension taxe). Rig count: 547 Baker Hughes." },
+  { date: '2026-05-08', brent_paper_usd: 101.65, brent_physique_usd: 150.00, essence_qc_cad_litre: 1.94, diesel_qc_cad_litre: 2.43, spr_us_millions_barils: 392.5, distillate_us_vs_5y_pct: -11, rig_count_us: 548, hormuz_ships_per_week: 40, jet_fuel_ara_index: 172, fao_food_price_index: 132, scenario_probabilite_A: 28, scenario_probabilite_B: 52, scenario_probabilite_C: 20, notes: "Article Shryock publié (physical near $150). Essence: 194,2 ¢/L Régie (sem. 4 mai). Rig count: 548 Baker Hughes." },
+  { date: '2026-05-10', brent_paper_usd: 101.65, brent_physique_usd: 150.00, essence_qc_cad_litre: 1.94, diesel_qc_cad_litre: 2.43, spr_us_millions_barils: 392.5, distillate_us_vs_5y_pct: -11, rig_count_us: 548, hormuz_ships_per_week: 40, jet_fuel_ara_index: 172, fao_food_price_index: 132, scenario_probabilite_A: 35, scenario_probabilite_B: 50, scenario_probabilite_C: 15, notes: "Baseline — 3 scénarios définis. Données vérifiées EIA sem. 8 mai." },
+  { date: '2026-05-12', brent_paper_usd: 107.50, brent_physique_usd: 138.00, essence_qc_cad_litre: 1.98, diesel_qc_cad_litre: 2.43, spr_us_millions_barils: 391.0, distillate_us_vs_5y_pct: -12, rig_count_us: 548, hormuz_ships_per_week: 45, jet_fuel_ara_index: 163, fao_food_price_index: 130.7, scenario_probabilite_A: 30, scenario_probabilite_B: 52, scenario_probabilite_C: 18, notes: "Essence: 198,2 ¢/L Régie (sem. 11 mai). Taxe excise fédérale suspendue 20 avr-7 sept. Spirit Airlines cesse 2 mai." },
+  { date: '2026-05-15', brent_paper_usd: 115.26, brent_physique_usd: 145.00, essence_qc_cad_litre: 2.01, diesel_qc_cad_litre: 2.45, spr_us_millions_barils: 376.7, distillate_us_vs_5y_pct: -9, rig_count_us: 548, hormuz_ships_per_week: 55, jet_fuel_ara_index: 163, fao_food_price_index: 130.7, scenario_probabilite_A: 27, scenario_probabilite_B: 52, scenario_probabilite_C: 21, notes: "Brent +7,8 % en 3 jours. PREMIER PASSAGE > 200 c/L QC (200,8 c/L CAA Montreal). SPR ~376,7 M estimé. Hormuz: ~55/sem; Qatar LNG repris. Negociations Iran-USA en impasse." },
+  { date: '2026-05-19', brent_paper_usd: 115.26, brent_physique_usd: 145.00, essence_qc_cad_litre: 2.02, diesel_qc_cad_litre: 2.45, spr_us_millions_barils: 370.6, distillate_us_vs_5y_pct: -9, rig_count_us: 548, hormuz_ships_per_week: 38, jet_fuel_ara_index: 163, fao_food_price_index: 130.7, scenario_probabilite_A: 23, scenario_probabilite_B: 50, scenario_probabilite_C: 27, notes: "ESCALADE: Drones sur centrale nucleaire Barakah UAE (17 mai - proxies Iran). Cessez-le-feu au bord du gouffre. 15 B-1B Lancers a RAF Fairford. Hormuz 38 nav/sem (Bloomberg) - passage metered Iran, Kharg sans chargement depuis 7 mai. SPR ~370,6 M. C: 27% (+12 vs baseline)." },
+];
+
+const SHRYOCK = [
+  { date: '2026-05-08', brent_paper_usd: 101.65, brent_physique_usd: 150, essence_qc_cad_litre: 1.94, diesel_qc_cad_litre: 2.43, spr_us_millions_barils: 392.5, distillate_us_vs_5y_pct: -11, rig_count_us: null, hormuz_ships_per_week: 40, jet_fuel_ara_index: 172, fao_food_price_index: 132 },
+  { date: '2026-05-17', brent_paper_usd: 115, brent_physique_usd: 155, essence_qc_cad_litre: 2.10, diesel_qc_cad_litre: 2.75, spr_us_millions_barils: 391, distillate_us_vs_5y_pct: -13, rig_count_us: null, hormuz_ships_per_week: 40, jet_fuel_ara_index: 182, fao_food_price_index: 133 },
+  { date: '2026-05-24', brent_paper_usd: 128, brent_physique_usd: 165, essence_qc_cad_litre: 2.28, diesel_qc_cad_litre: 3.00, spr_us_millions_barils: 389, distillate_us_vs_5y_pct: -15, rig_count_us: null, hormuz_ships_per_week: 40, jet_fuel_ara_index: 195, fao_food_price_index: 134 },
+  { date: '2026-05-31', brent_paper_usd: 140, brent_physique_usd: 175, essence_qc_cad_litre: 2.45, diesel_qc_cad_litre: 3.30, spr_us_millions_barils: 387, distillate_us_vs_5y_pct: -17, rig_count_us: null, hormuz_ships_per_week: 38, jet_fuel_ara_index: 210, fao_food_price_index: 136 },
+  { date: '2026-06-07', brent_paper_usd: 148, brent_physique_usd: 185, essence_qc_cad_litre: 2.60, diesel_qc_cad_litre: 3.55, spr_us_millions_barils: 384, distillate_us_vs_5y_pct: -19, rig_count_us: null, hormuz_ships_per_week: 38, jet_fuel_ara_index: 225, fao_food_price_index: 138 },
+  { date: '2026-06-14', brent_paper_usd: 155, brent_physique_usd: 190, essence_qc_cad_litre: 2.75, diesel_qc_cad_litre: 3.80, spr_us_millions_barils: 381, distillate_us_vs_5y_pct: -21, rig_count_us: null, hormuz_ships_per_week: 38, jet_fuel_ara_index: 240, fao_food_price_index: 140 },
+  { date: '2026-06-21', brent_paper_usd: 160, brent_physique_usd: 195, essence_qc_cad_litre: 2.88, diesel_qc_cad_litre: 4.00, spr_us_millions_barils: 378, distillate_us_vs_5y_pct: -23, rig_count_us: null, hormuz_ships_per_week: 38, jet_fuel_ara_index: 250, fao_food_price_index: 142 },
+  { date: '2026-06-28', brent_paper_usd: 165, brent_physique_usd: 205, essence_qc_cad_litre: 3.00, diesel_qc_cad_litre: 4.15, spr_us_millions_barils: 375, distillate_us_vs_5y_pct: -25, rig_count_us: null, hormuz_ships_per_week: 38, jet_fuel_ara_index: 258, fao_food_price_index: 144 },
+  { date: '2026-07-05', brent_paper_usd: 170, brent_physique_usd: 215, essence_qc_cad_litre: 3.12, diesel_qc_cad_litre: 4.30, spr_us_millions_barils: 372, distillate_us_vs_5y_pct: -27, rig_count_us: null, hormuz_ships_per_week: 38, jet_fuel_ara_index: 265, fao_food_price_index: 146 },
+  { date: '2026-07-12', brent_paper_usd: 175, brent_physique_usd: 220, essence_qc_cad_litre: 3.22, diesel_qc_cad_litre: 4.40, spr_us_millions_barils: 369, distillate_us_vs_5y_pct: -28, rig_count_us: null, hormuz_ships_per_week: 38, jet_fuel_ara_index: 270, fao_food_price_index: 148 },
+  { date: '2026-07-19', brent_paper_usd: 178, brent_physique_usd: 222, essence_qc_cad_litre: 3.28, diesel_qc_cad_litre: 4.45, spr_us_millions_barils: 366, distillate_us_vs_5y_pct: -28, rig_count_us: null, hormuz_ships_per_week: 38, jet_fuel_ara_index: 272, fao_food_price_index: 150 },
+  { date: '2026-07-26', brent_paper_usd: 180, brent_physique_usd: 220, essence_qc_cad_litre: 3.28, diesel_qc_cad_litre: 4.40, spr_us_millions_barils: 363, distillate_us_vs_5y_pct: -27, rig_count_us: null, hormuz_ships_per_week: 40, jet_fuel_ara_index: 270, fao_food_price_index: 152 },
+  { date: '2026-08-02', brent_paper_usd: 178, brent_physique_usd: 215, essence_qc_cad_litre: 3.26, diesel_qc_cad_litre: 4.35, spr_us_millions_barils: 361, distillate_us_vs_5y_pct: -26, rig_count_us: null, hormuz_ships_per_week: 42, jet_fuel_ara_index: 265, fao_food_price_index: 154 },
+  { date: '2026-08-09', brent_paper_usd: 175, brent_physique_usd: 210, essence_qc_cad_litre: 3.22, diesel_qc_cad_litre: 4.30, spr_us_millions_barils: 360, distillate_us_vs_5y_pct: -25, rig_count_us: null, hormuz_ships_per_week: 45, jet_fuel_ara_index: 260, fao_food_price_index: 155 },
+  { date: '2026-08-16', brent_paper_usd: 172, brent_physique_usd: 205, essence_qc_cad_litre: 3.18, diesel_qc_cad_litre: 4.25, spr_us_millions_barils: 358, distillate_us_vs_5y_pct: -24, rig_count_us: null, hormuz_ships_per_week: 50, jet_fuel_ara_index: 255, fao_food_price_index: 156 },
+  { date: '2026-08-23', brent_paper_usd: 170, brent_physique_usd: 200, essence_qc_cad_litre: 3.16, diesel_qc_cad_litre: 4.20, spr_us_millions_barils: 356, distillate_us_vs_5y_pct: -23, rig_count_us: null, hormuz_ships_per_week: 55, jet_fuel_ara_index: 250, fao_food_price_index: 157 },
+  { date: '2026-08-30', brent_paper_usd: 168, brent_physique_usd: 195, essence_qc_cad_litre: 3.14, diesel_qc_cad_litre: 4.15, spr_us_millions_barils: 355, distillate_us_vs_5y_pct: -22, rig_count_us: null, hormuz_ships_per_week: 60, jet_fuel_ara_index: 245, fao_food_price_index: 158 },
+];
+
+const COLORS = {
+  primary: '#1F3A5F', accent: '#C0392B', green: '#27AE60',
+  orange: '#E67E22', blue: '#2C5282', purple: '#7C3AED', grey: '#6b7280',
+  shryock: '#6366F1',
+};
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-' + t.dataset.tab).classList.add('active');
+  };
+});
+
+function trend(curr, prev, inverse) {
+  if (curr == null || prev == null) return { dir: 'flat', text: '—' };
+  const d = curr - prev;
+  const pct = prev !== 0 ? (d / prev * 100) : 0;
+  let dir = 'flat';
+  if (Math.abs(pct) > 0.5) dir = inverse ? (d < 0 ? 'up' : 'down') : (d > 0 ? 'up' : 'down');
+  const arrow = d > 0 ? '↑' : d < 0 ? '↓' : '→';
+  const sign = d > 0 ? '+' : '';
+  return { dir, text: `${arrow} ${sign}${d.toFixed(2)} (${sign}${pct.toFixed(1)}%)` };
+}
+
+function deltaStr(curr, prev) {
+  if (curr == null || prev == null) return '';
+  const d = curr - prev;
+  if (d === 0) return '';
+  const sign = d > 0 ? '+' : '';
+  return `${sign}${d}`;
+}
+
+function compareVsShryock(actualValue, shryockValue, inverse) {
+  if (actualValue == null || shryockValue == null) return null;
+  const delta = actualValue - shryockValue;
+  const pct = shryockValue !== 0 ? (delta / Math.abs(shryockValue) * 100) : 0;
+  if (Math.abs(pct) < 2) return { cls: 'vs-on', text: 'sur la prédiction' };
+  const isWorse = inverse ? delta < 0 : delta > 0;
+  return {
+    cls: isWorse ? 'vs-over' : 'vs-under',
+    text: isWorse
+      ? `pire que Shryock (${delta > 0 ? '+' : ''}${pct.toFixed(0)}%)`
+      : `mieux que Shryock (${delta > 0 ? '+' : ''}${pct.toFixed(0)}%)`
+  };
+}
+
+function setLatest(id, val, t) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let h = `<strong>${val}</strong>`;
+  if (t) h += ` <span class="trend ${t.dir}">${t.text}</span>`;
+  el.innerHTML = h;
+}
+
+function setVsShryock(id, comparison) {
+  const el = document.getElementById(id);
+  if (!el || !comparison) return;
+  el.className = 'vs-shryock ' + comparison.cls;
+  el.textContent = comparison.text;
+}
+
+function makeLine(canvasId, datasets, labels, yLabel, stacked) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  return new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: true, aspectRatio: 1.8,
+      spanGaps: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 6, boxWidth: 10 } },
+        tooltip: { mode: 'index', intersect: false },
+      },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false },
+      scales: {
+        x: { stacked: !!stacked, ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45 } },
+        y: {
+          stacked: !!stacked,
+          max: stacked ? 100 : undefined,
+          title: { display: !!yLabel, text: yLabel, font: { size: 10 } },
+          ticks: { font: { size: 9 } }
+        }
+      }
+    }
+  });
+}
+
+const allDates = Array.from(new Set([...DATA.map(d => d.date), ...SHRYOCK.map(d => d.date)])).sort();
+
+function valuesByDate(arr, key) {
+  return allDates.map(d => {
+    const row = arr.find(r => r.date === d);
+    return (row && row[key] != null) ? row[key] : null;
+  });
+}
+
+function makeShryockDataset(key) {
+  return {
+    label: 'Prédiction Shryock',
+    data: valuesByDate(SHRYOCK, key),
+    borderColor: COLORS.shryock,
+    backgroundColor: 'transparent',
+    borderDash: [6, 4],
+    borderWidth: 2,
+    pointRadius: 0,
+    pointHoverRadius: 4,
+    tension: 0.4,
+  };
+}
+
+const last = DATA[DATA.length - 1];
+const prev = DATA[DATA.length - 2] || last;
+const baseline = DATA.find(r => r.date === '2026-05-10') || DATA[0];
+
+document.getElementById('last-update').textContent =
+  `Mise à jour : ${last.date} · ${DATA.length} observations · Prochain rapport : vendredi 22 mai 9 h`;
+
+document.getElementById('prob-A').textContent = last.scenario_probabilite_A + ' %';
+document.getElementById('prob-B').textContent = last.scenario_probabilite_B + ' %';
+document.getElementById('prob-C').textContent = last.scenario_probabilite_C + ' %';
+
+const dA = deltaStr(last.scenario_probabilite_A, baseline.scenario_probabilite_A);
+const dB = deltaStr(last.scenario_probabilite_B, baseline.scenario_probabilite_B);
+const dC = deltaStr(last.scenario_probabilite_C, baseline.scenario_probabilite_C);
+document.getElementById('delta-A').innerHTML = dA ? `<span style="color:${dA.startsWith('+') ? '#C0392B' : '#27AE60'}">${dA} vs baseline</span>` : '';
+document.getElementById('delta-B').innerHTML = dB ? `<span style="color:${dB.startsWith('+') ? '#27AE60' : '#C0392B'}">${dB} vs baseline</span>` : '';
+document.getElementById('delta-C').innerHTML = dC ? `<span style="color:${dC.startsWith('+') ? '#C0392B' : '#27AE60'}">${dC} vs baseline</span>` : '';
+
+function shryockAt(date) { return SHRYOCK.find(r => r.date === date); }
+const shryockNow = shryockAt(last.date);
+
+makeLine('chart-scenarios', [
+  { label: 'A — Apaisement', data: DATA.map(r => r.scenario_probabilite_A), backgroundColor: 'rgba(39,174,96,0.5)', borderColor: COLORS.green, fill: true, tension: 0.3 },
+  { label: 'B — Stagflation', data: DATA.map(r => r.scenario_probabilite_B), backgroundColor: 'rgba(230,126,34,0.5)', borderColor: COLORS.orange, fill: true, tension: 0.3 },
+  { label: 'C — Escalade', data: DATA.map(r => r.scenario_probabilite_C), backgroundColor: 'rgba(192,57,43,0.5)', borderColor: COLORS.accent, fill: true, tension: 0.3 },
+], DATA.map(r => r.date), 'Probabilité (%)', true);
+
+makeLine('chart-brent', [
+  { label: 'Réel', data: valuesByDate(DATA, 'brent_paper_usd'), borderColor: COLORS.primary, backgroundColor: 'rgba(31,58,95,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  makeShryockDataset('brent_paper_usd')
+], allDates, 'USD/baril');
+setLatest('latest-brent', `${last.brent_paper_usd}$`, trend(last.brent_paper_usd, prev.brent_paper_usd));
+setVsShryock('vs-brent', compareVsShryock(last.brent_paper_usd, shryockNow?.brent_paper_usd));
+
+makeLine('chart-brentphys', [
+  { label: 'Réel', data: valuesByDate(DATA, 'brent_physique_usd'), borderColor: COLORS.accent, backgroundColor: 'rgba(192,57,43,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  makeShryockDataset('brent_physique_usd')
+], allDates, 'USD/baril');
+setLatest('latest-brentphys', `${last.brent_physique_usd}$`, trend(last.brent_physique_usd, prev.brent_physique_usd));
+setVsShryock('vs-brentphys', compareVsShryock(last.brent_physique_usd, shryockNow?.brent_physique_usd));
+
+makeLine('chart-essence', [
+  { label: 'Réel', data: valuesByDate(DATA, 'essence_qc_cad_litre'), borderColor: COLORS.orange, backgroundColor: 'rgba(230,126,34,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  makeShryockDataset('essence_qc_cad_litre')
+], allDates, 'CAD/L');
+setLatest('latest-essence', `${last.essence_qc_cad_litre}$/L`, trend(last.essence_qc_cad_litre, prev.essence_qc_cad_litre));
+setVsShryock('vs-essence', compareVsShryock(last.essence_qc_cad_litre, shryockNow?.essence_qc_cad_litre));
+
+makeLine('chart-diesel', [
+  { label: 'Réel', data: valuesByDate(DATA, 'diesel_qc_cad_litre'), borderColor: COLORS.purple, backgroundColor: 'rgba(124,58,237,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  makeShryockDataset('diesel_qc_cad_litre')
+], allDates, 'CAD/L');
+setLatest('latest-diesel', `${last.diesel_qc_cad_litre}$/L`, trend(last.diesel_qc_cad_litre, prev.diesel_qc_cad_litre));
+setVsShryock('vs-diesel', compareVsShryock(last.diesel_qc_cad_litre, shryockNow?.diesel_qc_cad_litre));
+
+makeLine('chart-spr', [
+  { label: 'Réel', data: valuesByDate(DATA, 'spr_us_millions_barils'), borderColor: COLORS.blue, backgroundColor: 'rgba(44,82,130,0.15)', fill: false, tension: 0.3, borderWidth: 2.5 },
+  makeShryockDataset('spr_us_millions_barils')
+], allDates, 'M barils');
+setLatest('latest-spr', `${last.spr_us_millions_barils} M`, trend(last.spr_us_millions_barils, prev.spr_us_millions_barils, true));
+setVsShryock('vs-spr', compareVsShryock(last.spr_us_millions_barils, shryockNow?.spr_us_millions_barils, true));
+
+makeLine('chart-distillate', [
+  { label: 'Réel', data: valuesByDate(DATA, 'distillate_us_vs_5y_pct'), borderColor: COLORS.accent, backgroundColor: 'rgba(192,57,43,0.1)', fill: false, tension: 0.3, borderWidth: 2.5 },
+  makeShryockDataset('distillate_us_vs_5y_pct')
+], allDates, '% écart');
+setLatest('latest-distillate', `${last.distillate_us_vs_5y_pct}%`, trend(last.distillate_us_vs_5y_pct, prev.distillate_us_vs_5y_pct, true));
+setVsShryock('vs-distillate', compareVsShryock(last.distillate_us_vs_5y_pct, shryockNow?.distillate_us_vs_5y_pct, true));
+
+makeLine('chart-rig', [
+  { label: 'Baker Hughes réel', data: valuesByDate(DATA, 'rig_count_us'), borderColor: COLORS.primary, backgroundColor: 'rgba(31,58,95,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+], allDates, 'Plateformes');
+setLatest('latest-rig', `${last.rig_count_us}`, trend(last.rig_count_us, prev.rig_count_us));
+
+makeLine('chart-hormuz', [
+  { label: 'Réel', data: valuesByDate(DATA, 'hormuz_ships_per_week'), borderColor: COLORS.accent, backgroundColor: 'rgba(192,57,43,0.15)', fill: false, tension: 0.3, borderWidth: 2.5 },
+  makeShryockDataset('hormuz_ships_per_week')
+], allDates, 'Navires');
+setLatest('latest-hormuz', `${last.hormuz_ships_per_week} nav/sem`, trend(last.hormuz_ships_per_week, prev.hormuz_ships_per_week));
+setVsShryock('vs-hormuz', compareVsShryock(last.hormuz_ships_per_week, shryockNow?.hormuz_ships_per_week, true));
+
+makeLine('chart-jet', [
+  { label: 'Réel', data: valuesByDate(DATA, 'jet_fuel_ara_index'), borderColor: COLORS.purple, backgroundColor: 'rgba(124,58,237,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  makeShryockDataset('jet_fuel_ara_index')
+], allDates, 'Indice');
+setLatest('latest-jet', `${last.jet_fuel_ara_index}`, trend(last.jet_fuel_ara_index, prev.jet_fuel_ara_index));
+setVsShryock('vs-jet', compareVsShryock(last.jet_fuel_ara_index, shryockNow?.jet_fuel_ara_index));
+
+makeLine('chart-fao', [
+  { label: 'Réel', data: valuesByDate(DATA, 'fao_food_price_index'), borderColor: COLORS.green, backgroundColor: 'rgba(39,174,96,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  makeShryockDataset('fao_food_price_index')
+], allDates, 'Indice');
+setLatest('latest-fao', `${last.fao_food_price_index}`, trend(last.fao_food_price_index, prev.fao_food_price_index));
+setVsShryock('vs-fao', compareVsShryock(last.fao_food_price_index, shryockNow?.fao_food_price_index));
+
+let sortCol = 'date';
+let sortDir = 'desc';
+function renderTable() {
+  const sorted = DATA.slice().sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (typeof va === 'number' && typeof vb === 'number') return sortDir === 'asc' ? va - vb : vb - va;
+    return sortDir === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+  });
+  document.getElementById('table-body').innerHTML = sorted.map(r => `<tr>
+    <td><strong>${r.date}</strong></td>
+    <td>${r.brent_paper_usd}</td>
+    <td>${r.brent_physique_usd}</td>
+    <td>${r.essence_qc_cad_litre}</td>
+    <td>${r.diesel_qc_cad_litre}</td>
+    <td>${r.spr_us_millions_barils}</td>
+    <td>${r.distillate_us_vs_5y_pct}</td>
+    <td>${r.rig_count_us}</td>
+    <td>${r.hormuz_ships_per_week}</td>
+    <td>${r.jet_fuel_ara_index}</td>
+    <td>${r.fao_food_price_index}</td>
+    <td>${r.scenario_probabilite_A}</td>
+    <td>${r.scenario_probabilite_B}</td>
+    <td>${r.scenario_probabilite_C}</td>
+    <td class="notes-cell">${r.notes || ''}</td>
+  </tr>`).join('');
+}
+document.querySelectorAll('#data-table th').forEach(th => {
+  th.onclick = () => {
+    const col = th.dataset.col;
+    if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    else { sortCol = col; sortDir = 'desc'; }
+    renderTable();
+  };
+});
+renderTable();
+</script>
+
+</body>
+</html>
+                     
