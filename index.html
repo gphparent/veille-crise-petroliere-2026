@@ -61,8 +61,6 @@ body[data-theme="cyan"] {
 
 html, body { background: var(--bg-deep); }
 
-html { overflow-x: hidden; }
-
 body {
   font-family: "Share Tech Mono", "VT323", ui-monospace, monospace;
   color: var(--phos);
@@ -76,6 +74,7 @@ body {
     radial-gradient(ellipse at center, rgba(74,254,124,0.05) 0%, transparent 65%),
     var(--bg);
   position: relative;
+  overflow-x: hidden;
 }
 
 /* === CRT scanlines === */
@@ -983,8 +982,11 @@ body[data-cursor="on"] input[type=range] { cursor: var(--cursor-pointer), grab; 
 
 /* === Boot sequence overlay === */
 .boot-overlay {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100%;
   background: var(--bg-deep);
   z-index: 2000;
   font-family: "Share Tech Mono", monospace;
@@ -999,8 +1001,8 @@ body[data-cursor="on"] input[type=range] { cursor: var(--cursor-pointer), grab; 
 }
 .boot-inner {
   position: absolute;
-  top: 50%;
   left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
   width: min(720px, 92vw);
   padding: 28px 32px;
@@ -2185,6 +2187,61 @@ const BOOT_LINES = [
 ];
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* === Position du boot-inner sur l'écran de l'utilisateur ===
+   Compense le scroll du parent quand l'iframe est plus haute que la fenêtre. */
+function positionBootInner() {
+  const overlay = document.getElementById('boot-overlay');
+  const inner = overlay && overlay.querySelector('.boot-inner');
+  if (!inner || !overlay || overlay.classList.contains('done')) return;
+  // S'assurer que l'overlay couvre toute la hauteur du document
+  overlay.style.height = Math.max(document.documentElement.scrollHeight, window.innerHeight) + 'px';
+
+  // Trouver le centre vertical de la zone visible
+  let topInDoc;
+  try {
+    const iframe = window.frameElement;
+    if (iframe) {
+      const r = iframe.getBoundingClientRect();
+      const parentVh = window.parent.innerHeight;
+      // Portion visible de l'iframe (en coord parent)
+      const visibleTopP = Math.max(0, -r.top);
+      const visibleBotP = Math.min(r.height, parentVh - r.top);
+      const centerP = (visibleTopP + visibleBotP) / 2;
+      // Convertir en coord doc de l'iframe (mêmes unités)
+      topInDoc = centerP;
+    } else {
+      topInDoc = (window.scrollY || 0) + window.innerHeight / 2;
+    }
+  } catch (e) {
+    // Cross-origin : fallback sur le scroll local
+    topInDoc = (window.scrollY || 0) + window.innerHeight / 2;
+  }
+  inner.style.top = topInDoc + 'px';
+}
+// Hooks scroll/resize : iframe local + parent si accessible
+window.addEventListener('scroll', positionBootInner, { passive: true });
+window.addEventListener('resize', positionBootInner, { passive: true });
+try {
+  if (window.parent && window.parent !== window) {
+    window.parent.addEventListener('scroll', positionBootInner, { passive: true });
+    window.parent.addEventListener('resize', positionBootInner, { passive: true });
+  }
+} catch (e) { /* cross-origin */ }
+// Re-check en continu pendant la boot pour suivre tout scroll exotique
+let bootRAF = null;
+function startBootTracking() {
+  cancelAnimationFrame(bootRAF);
+  const loop = () => {
+    positionBootInner();
+    const overlay = document.getElementById('boot-overlay');
+    if (overlay && !overlay.classList.contains('done')) {
+      bootRAF = requestAnimationFrame(loop);
+    }
+  };
+  bootRAF = requestAnimationFrame(loop);
+}
+
 async function runBoot() {
   const overlay = document.getElementById('boot-overlay');
   const cont = document.getElementById('boot-lines');
@@ -2193,6 +2250,32 @@ async function runBoot() {
   overlay.classList.remove('done');
   cont.innerHTML = '';
   final.classList.remove('show');
+  // Lancer le suivi de position
+  startBootTracking();
+
+  // === Gate : attendre un user gesture pour débloquer Web Audio ===
+  // (sans ça, les premiers sons sont mutés sur GitHub Pages / hosts stricts)
+  await new Promise(resolve => {
+    const gate = document.createElement('div');
+    gate.className = 'ln';
+    gate.style.textAlign = 'center';
+    gate.style.padding = '40px 0';
+    gate.innerHTML = '<div style="font-family:VT323,monospace;font-size:22px;letter-spacing:0.2em;color:var(--amber);text-shadow:0 0 8px var(--amber);animation:bootBlink 1s infinite;">▶ APPUYEZ POUR DÉMARRER ◀</div><div style="font-size:11px;color:var(--phos-dim);letter-spacing:0.2em;margin-top:10px;">(active le son CRT)</div>';
+    cont.appendChild(gate);
+    requestAnimationFrame(() => gate.classList.add('show'));
+    const start = () => {
+      // Résumer l'AudioContext grâce au geste utilisateur
+      const ctx = ensureAudio();
+      if (ctx && ctx.resume) ctx.resume();
+      gate.remove();
+      overlay.removeEventListener('click', start);
+      document.removeEventListener('keydown', start);
+      resolve();
+    };
+    overlay.addEventListener('click', start);
+    document.addEventListener('keydown', start);
+  });
+
   let skipped = false;
   const onSkip = () => { skipped = true; ensureAudio() && audioCtx.resume && audioCtx.resume(); };
   overlay.addEventListener('click', onSkip, { once: true });
@@ -2302,4 +2385,4 @@ window.addEventListener('message', e => {
 window.parent.postMessage({type: '__edit_mode_available'}, '*');
 </script>
 </body>
-</html
+</html>
