@@ -986,9 +986,6 @@ body[data-cursor="on"] input[type=range] { cursor: var(--cursor-pointer), grab; 
   inset: 0;
   background: var(--bg-deep);
   z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-family: "Share Tech Mono", monospace;
   color: var(--phos);
   overflow: hidden;
@@ -1000,12 +997,15 @@ body[data-cursor="on"] input[type=range] { cursor: var(--cursor-pointer), grab; 
   pointer-events: none;
 }
 .boot-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: min(720px, 92vw);
   padding: 28px 32px;
   border: 1px solid var(--phos);
   background: var(--bg);
   box-shadow: 0 0 60px var(--phos-glow), inset 0 0 40px var(--phos-soft);
-  position: relative;
   min-height: 360px;
 }
 .boot-inner::before, .boot-inner::after {
@@ -2302,3 +2302,4 @@ window.parent.postMessage({type: '__edit_mode_available'}, '*');
 </script>
 </body>
 </html>
+      
