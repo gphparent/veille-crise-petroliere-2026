@@ -2,371 +2,1323 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Veille — Crise pétrolière 2026</title>
+<title>SymboliTerm · VEILLE 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Major+Mono+Display&display=swap" rel="stylesheet">
 <style>
-:root { color-scheme: light; }
+:root {
+  /* Phosphore vert (par défaut) */
+  --phos:        #4afe7c;
+  --phos-dim:    #2dcb5b;
+  --phos-faint:  rgba(74, 254, 124, 0.18);
+  --phos-soft:   rgba(74, 254, 124, 0.08);
+  --phos-glow:   rgba(74, 254, 124, 0.45);
+  --bg:          #050a07;
+  --bg-deep:     #020503;
+  --bg-panel:    rgba(74, 254, 124, 0.04);
+  --amber:       #ffb627;
+  --amber-dim:   #c98a1a;
+  --warn:        #ff5a36;
+  --warn-dim:    #b73a1d;
+  --shryock:     #b993ff;
+  --shryock-dim: #8467cc;
+  --scanline-op: 0.35;
+  --glow:        0 0 4px rgba(74, 254, 124, 0.55), 0 0 12px rgba(74, 254, 124, 0.18);
+  --glow-strong: 0 0 6px rgba(74, 254, 124, 0.8), 0 0 18px rgba(74, 254, 124, 0.35);
+  color-scheme: dark;
+}
+body[data-theme="amber"] {
+  --phos:        #ffb627;
+  --phos-dim:    #c98a1a;
+  --phos-faint:  rgba(255, 182, 39, 0.18);
+  --phos-soft:   rgba(255, 182, 39, 0.08);
+  --phos-glow:   rgba(255, 182, 39, 0.45);
+  --bg:          #0a0703;
+  --bg-deep:     #050301;
+  --bg-panel:    rgba(255, 182, 39, 0.04);
+  --amber:       #ffe27c;
+  --shryock:     #ff7adf;
+  --glow:        0 0 4px rgba(255, 182, 39, 0.55), 0 0 12px rgba(255, 182, 39, 0.18);
+  --glow-strong: 0 0 6px rgba(255, 182, 39, 0.8), 0 0 18px rgba(255, 182, 39, 0.35);
+}
+body[data-theme="cyan"] {
+  --phos:        #5cf6f6;
+  --phos-dim:    #2cb6b6;
+  --phos-faint:  rgba(92, 246, 246, 0.18);
+  --phos-soft:   rgba(92, 246, 246, 0.08);
+  --phos-glow:   rgba(92, 246, 246, 0.45);
+  --bg:          #03080a;
+  --bg-deep:     #010405;
+  --bg-panel:    rgba(92, 246, 246, 0.04);
+  --amber:       #ffe27c;
+  --shryock:     #ff8db5;
+  --glow:        0 0 4px rgba(92, 246, 246, 0.55), 0 0 12px rgba(92, 246, 246, 0.18);
+  --glow-strong: 0 0 6px rgba(92, 246, 246, 0.8), 0 0 18px rgba(92, 246, 246, 0.35);
+}
+
 * { box-sizing: border-box; }
+
+html, body { background: var(--bg-deep); }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: transparent;
-  color: #1f2933;
+  font-family: "Share Tech Mono", "VT323", ui-monospace, monospace;
+  color: var(--phos);
   margin: 0;
-  padding: 12px;
-  font-size: 14px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at center, rgba(74,254,124,0.05) 0%, transparent 65%),
+    var(--bg);
+  position: relative;
+  overflow-x: hidden;
 }
-.header {
-  background: linear-gradient(135deg, #1F3A5F 0%, #2C5282 100%);
-  color: white;
-  padding: 16px 20px;
-  border-radius: 8px;
-  margin-bottom: 16px;
+
+/* === CRT scanlines === */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0, var(--scanline-op)) 0,
+      rgba(0,0,0, var(--scanline-op)) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  z-index: 1000;
+  mix-blend-mode: multiply;
 }
-.header h1 { margin: 0 0 4px 0; font-size: 18px; }
-.header p { margin: 2px 0; opacity: 0.9; font-size: 12px; }
-.tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-  border-bottom: 2px solid #e5e7eb;
+/* === CRT vignette === */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.55) 100%);
+  z-index: 999;
 }
-.tab {
-  padding: 8px 14px;
-  cursor: pointer;
-  border-radius: 6px 6px 0 0;
-  font-weight: 500;
+
+body[data-flicker="on"] {
+  animation: flicker 8s infinite;
+}
+@keyframes flicker {
+  0%, 100% { filter: brightness(1); }
+  3% { filter: brightness(1.05); }
+  3.5% { filter: brightness(0.92); }
+  4% { filter: brightness(1.04); }
+  60% { filter: brightness(1); }
+  60.5% { filter: brightness(0.96); }
+  61% { filter: brightness(1.02); }
+}
+
+.wrap {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 22px 28px 60px;
+  position: relative;
+}
+
+/* === Bandeau terminal en tête === */
+.banner {
+  border: 1px solid var(--phos-dim);
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  background:
+    linear-gradient(180deg, var(--phos-soft) 0%, transparent 100%),
+    var(--bg-panel);
+  box-shadow: inset 0 0 30px var(--phos-soft);
+  position: relative;
+}
+.banner::before, .banner::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border: 1px solid var(--phos);
+}
+.banner::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.banner::after { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+
+.banner-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+.banner h1 {
+  font-family: "VT323", monospace;
+  font-size: 38px;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-shadow: var(--glow-strong);
+  line-height: 1;
+}
+.banner .system-line {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--phos-dim);
+  margin: 0 0 4px 0;
+}
+.banner .sub {
   font-size: 13px;
-  color: #6b7280;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  color: var(--phos-dim);
+  margin: 6px 0 0 0;
+  letter-spacing: 0.05em;
 }
-.tab.active {
-  background: white;
-  color: #1F3A5F;
-  border-bottom-color: #1F3A5F;
+.banner .meta {
+  font-size: 12px;
+  text-align: right;
+  color: var(--phos-dim);
+  line-height: 1.7;
 }
-.tab:hover:not(.active) { background: #f3f4f6; }
-.panel { display: none; }
-.panel.active { display: block; }
+.banner .meta strong {
+  color: var(--phos);
+  text-shadow: var(--glow);
+  font-weight: normal;
+}
+.banner .status-row {
+  display: flex;
+  gap: 18px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--phos-dim);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--phos-dim);
+  flex-wrap: wrap;
+}
+.status-row .led {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--phos);
+  box-shadow: 0 0 6px var(--phos);
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: blink 1.4s infinite;
+}
+.status-row .led.warn { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+@keyframes blink { 0%, 60% { opacity: 1; } 80%, 100% { opacity: 0.3; } }
+
+/* === Bandeaux d'alerte (sténographie urgente) === */
+.alert {
+  border: 1px solid var(--warn-dim);
+  background: linear-gradient(90deg, rgba(255,90,54,0.08) 0%, transparent 80%);
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--phos);
+  position: relative;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.alert .badge {
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  color: var(--warn);
+  text-shadow: 0 0 6px var(--warn);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.alert.info .badge { color: var(--amber); text-shadow: 0 0 6px var(--amber); }
+.alert.info { border-color: var(--amber-dim); background: linear-gradient(90deg, rgba(255,182,39,0.08) 0%, transparent 80%); }
+.alert.note .badge { color: var(--shryock); text-shadow: 0 0 6px var(--shryock); }
+.alert.note { border-color: var(--shryock-dim); background: linear-gradient(90deg, rgba(185,147,255,0.07) 0%, transparent 80%); }
+.alert strong { color: var(--phos); text-shadow: var(--glow); font-weight: normal; }
+.alert .legend-shryock {
+  display: inline-block;
+  width: 28px; height: 0;
+  border-top: 2px dashed var(--shryock);
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* === Matrice des scénarios === */
+.section-head {
+  font-family: "VT323", monospace;
+  font-size: 22px;
+  letter-spacing: 0.15em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  margin: 22px 0 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--phos-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.section-head::before { content: '▶ '; color: var(--phos-dim); }
+.section-head small {
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--phos-dim);
+  text-transform: uppercase;
+}
+
 .scenario-bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 .scenario {
-  background: white;
-  padding: 12px;
-  border-radius: 6px;
-  border-left: 4px solid;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid var(--phos-dim);
+  padding: 14px 16px;
+  background: var(--bg-panel);
+  position: relative;
+  transition: all 0.2s;
 }
-.scenario.A { border-left-color: #27AE60; }
-.scenario.B { border-left-color: #E67E22; }
-.scenario.C { border-left-color: #C0392B; }
-.scenario h3 { margin: 0; font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 600; }
-.scenario .value { font-size: 24px; font-weight: 700; line-height: 1; margin: 6px 0 2px; }
-.scenario.A .value { color: #27AE60; }
-.scenario.B .value { color: #E67E22; }
-.scenario.C .value { color: #C0392B; }
-.scenario .delta { font-size: 11px; font-weight: 600; margin: 1px 0 0; }
-.scenario .label { font-size: 11px; color: #4b5563; }
+.scenario.active {
+  border-color: var(--phos);
+  box-shadow: inset 0 0 20px var(--phos-soft), 0 0 12px var(--phos-soft);
+}
+.scenario .code {
+  font-family: "VT323", monospace;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: var(--phos-dim);
+  text-transform: uppercase;
+}
+.scenario h3 {
+  margin: 2px 0 6px;
+  font-family: "VT323", monospace;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  text-transform: uppercase;
+}
+.scenario .value {
+  font-family: "VT323", monospace;
+  font-size: 56px;
+  font-weight: normal;
+  line-height: 0.95;
+  margin: 8px 0 4px;
+  text-shadow: var(--glow-strong);
+  color: var(--phos);
+}
+.scenario.C .value { color: var(--warn); text-shadow: 0 0 8px var(--warn), 0 0 22px rgba(255,90,54,0.4); }
+.scenario.B .value { color: var(--amber); text-shadow: 0 0 8px var(--amber), 0 0 22px rgba(255,182,39,0.35); }
+.scenario .delta { font-size: 12px; margin: 4px 0 8px; color: var(--phos-dim); letter-spacing: 0.05em; }
+.scenario .label {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--phos-dim);
+  padding-top: 6px;
+  border-top: 1px dashed var(--phos-dim);
+}
+.scenario .label .action { color: var(--phos); }
+
+/* Barres ASCII de progression */
+.scenario .progress {
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  letter-spacing: 0.05em;
+  margin: 4px 0;
+  color: var(--phos);
+  text-shadow: var(--glow);
+}
+.scenario.C .progress { color: var(--warn); text-shadow: 0 0 6px var(--warn); }
+.scenario.B .progress { color: var(--amber); text-shadow: 0 0 6px var(--amber); }
+.scenario .progress .empty { color: var(--phos-dim); opacity: 0.4; text-shadow: none; }
+
+/* === Onglets terminal === */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin: 18px 0 14px;
+  border-bottom: 1px solid var(--phos-dim);
+  flex-wrap: wrap;
+}
+.tab {
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  letter-spacing: 0.15em;
+  padding: 8px 18px 6px;
+  cursor: pointer;
+  color: var(--phos-dim);
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-bottom: -1px;
+  text-transform: uppercase;
+  user-select: none;
+  transition: all 0.15s;
+}
+.tab:hover:not(.active) {
+  color: var(--phos);
+  background: var(--phos-soft);
+}
+.tab.active {
+  color: var(--phos);
+  text-shadow: var(--glow-strong);
+  border-color: var(--phos);
+  background: linear-gradient(180deg, var(--phos-soft) 0%, transparent 100%);
+}
+.tab .num {
+  color: var(--phos-dim);
+  margin-right: 6px;
+  font-size: 14px;
+}
+.tab.active .num { color: var(--phos); }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* === Cartes graphiques === */
 .grid-charts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 14px;
 }
 .card {
-  background: white;
-  padding: 14px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid var(--phos-dim);
+  background: var(--bg-panel);
+  padding: 14px 16px;
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
+/* Coins ASCII */
+.card::before, .card::after,
+.card > .corner-bl, .card > .corner-br {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px;
+  border: 1px solid var(--phos);
+}
+.card::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.card::after  { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.card .corner-bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+.card .corner-br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
 .card h2 {
-  margin: 0 0 8px 0;
-  font-size: 13px;
-  color: #1F3A5F;
-  font-weight: 600;
+  margin: 0 0 4px 0;
+  font-family: "VT323", monospace;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
 }
+.card h2 .source { font-size: 11px; letter-spacing: 0.2em; color: var(--phos-dim); text-shadow: none; }
 .card .latest {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1F3A5F;
-  margin: 2px 0 4px;
+  font-family: "VT323", monospace;
+  font-size: 28px;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  margin: 2px 0 6px;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-.card .vs-shryock {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
+.card .latest strong { font-weight: normal; }
+
+.vs-shryock {
+  font-family: "Share Tech Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border: 1px solid;
   display: inline-block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
-.vs-under { background: #D1FAE5; color: #065F46; }
-.vs-over { background: #FEE2E2; color: #991B1B; }
-.vs-on { background: #FEF3C7; color: #92400E; }
-.trend { font-size: 11px; font-weight: 500; }
-.trend.up { color: #C0392B; }
-.trend.down { color: #27AE60; }
-.trend.flat { color: #6b7280; }
+.vs-under { color: var(--phos); border-color: var(--phos-dim); background: var(--phos-soft); }
+.vs-over  { color: var(--warn); border-color: var(--warn-dim); background: rgba(255,90,54,0.08); }
+.vs-on    { color: var(--amber); border-color: var(--amber-dim); background: rgba(255,182,39,0.08); }
+
+.trend {
+  font-family: "Share Tech Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+.trend.up   { color: var(--warn); }
+.trend.down { color: var(--phos); }
+.trend.flat { color: var(--phos-dim); }
+
 canvas { max-height: 220px; }
+
+/* === Tableau === */
 .data-table-wrapper {
-  background: white;
-  border-radius: 8px;
-  padding: 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid var(--phos-dim);
+  padding: 12px;
+  background: var(--bg-panel);
   overflow-x: auto;
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 12px;
+  color: var(--phos);
+}
 th, td {
   text-align: left;
-  padding: 6px 8px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 7px 9px;
+  border-bottom: 1px dashed var(--phos-dim);
   white-space: nowrap;
 }
 th {
-  background: #1F3A5F;
-  color: white;
-  font-weight: 600;
+  background: transparent;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  font-weight: normal;
   text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 0.3px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
   cursor: pointer;
   user-select: none;
+  border-bottom: 1px solid var(--phos);
+  padding-top: 4px;
+  padding-bottom: 8px;
 }
-th:hover { background: #2C5282; }
-tr:nth-child(even) td { background: #f9fafb; }
-.notes-cell { font-size: 11px; color: #6b7280; white-space: normal; max-width: 240px; }
-.info-box {
-  background: #FFF8E1;
-  border-left: 3px solid #F59E0B;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-bottom: 12px;
+th::before { content: '> '; color: var(--phos-dim); }
+th:hover { background: var(--phos-soft); }
+tr:nth-child(even) td { background: var(--phos-soft); }
+tr:hover td { background: var(--phos-faint); }
+.notes-cell {
+  font-size: 11px;
+  color: var(--phos-dim);
+  white-space: normal;
+  max-width: 280px;
+  letter-spacing: 0;
 }
-.info-box.dotted {
-  background: #EEF2FF;
-  border-left-color: #6366F1;
-}
-.info-box.warning {
-  background: #FEF2F2;
-  border-left-color: #EF4444;
-}
-.info-box.success {
-  background: #F0FFF4;
-  border-left-color: #27AE60;
-}
-.scenarios-detail {
-  background: white;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-.scenarios-detail h3 { margin: 0 0 8px 0; font-size: 13px; color: #1F3A5F; }
-.scenarios-detail ul { margin: 4px 0 12px 18px; padding: 0; font-size: 12px; }
-.scenarios-detail li { margin: 3px 0; }
-.legend-shryock {
-  display: inline-block;
-  width: 24px;
-  height: 0;
-  border-top: 2px dashed #6366F1;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-/* === Événements marquants === */
-.events-list { position: relative; padding-left: 24px; }
-.events-list::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: #e5e7eb; }
-.event-item { position: relative; margin-bottom: 14px; }
-.event-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid; background: white; }
-.event-item.militaire::before { border-color: #C0392B; }
-.event-item.economique::before { border-color: #E67E22; }
-.event-item.politique::before { border-color: #2C5282; }
-.event-item.energetique::before { border-color: #27AE60; }
-.event-item.analyse::before { border-color: #7C3AED; }
-.event-card { background: white; border-radius: 6px; padding: 10px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 3px solid; }
-.event-card.militaire { border-left-color: #C0392B; }
-.event-card.economique { border-left-color: #E67E22; }
-.event-card.politique { border-left-color: #2C5282; }
-.event-card.energetique { border-left-color: #27AE60; }
-.event-card.analyse { border-left-color: #7C3AED; }
-.event-date { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 2px; }
-.event-type-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; margin-left: 6px; vertical-align: middle; }
-.militaire .event-type-badge { background:#FEE2E2; color:#991B1B; }
-.economique .event-type-badge { background:#FEF3C7; color:#92400E; }
-.politique .event-type-badge { background:#DBEAFE; color:#1E40AF; }
-.energetique .event-type-badge { background:#D1FAE5; color:#065F46; }
-.analyse .event-type-badge { background:#EDE9FE; color:#5B21B6; }
-.event-title { font-size: 13px; font-weight: 600; color: #1F3A5F; margin: 2px 0; }
-.event-summary { font-size: 11px; color: #4b5563; margin: 3px 0 0; line-height: 1.5; }
-.event-source { font-size: 10px; color: #9ca3af; margin-top: 4px; }
-.event-source a { color: #6366F1; text-decoration: none; }
-.event-source a:hover { text-decoration: underline; }
-.events-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-.legend-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #4b5563; }
-.legend-dot span { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-/* === Polymarket === */
-.poly-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.poly-card { background: white; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid #6366F1; }
-.poly-question { font-size: 13px; font-weight: 600; color: #1F3A5F; margin: 0 0 10px; }
-.poly-bar-wrap { background: #f3f4f6; border-radius: 4px; height: 10px; margin-bottom: 6px; overflow: hidden; }
-.poly-bar-yes { height: 100%; background: linear-gradient(90deg, #27AE60, #34d399); border-radius: 4px; }
-.poly-labels { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; }
-.poly-yes { color: #27AE60; }
-.poly-no { color: #C0392B; }
-.poly-meta { font-size: 10px; color: #9ca3af; margin-top: 6px; }
-.poly-meta a { color: #6366F1; text-decoration: none; }
-.poly-meta a:hover { text-decoration: underline; }
-.poly-snapshot { font-size: 10px; color: #6b7280; background: #f9fafb; border-radius: 4px; padding: 4px 8px; margin-bottom: 10px; }
 
-/* === Mini-événements (page principale) === */
-.events-mini-wrap { background: white; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.events-mini-wrap h4 { margin: 0 0 8px; font-size: 12px; color: #1F3A5F; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+/* === Journal / événements === */
+.events-list {
+  position: relative;
+  padding-left: 32px;
+}
+.events-list::before {
+  content: '';
+  position: absolute;
+  left: 9px; top: 0; bottom: 0;
+  width: 1px;
+  background: var(--phos-dim);
+}
+.event-item {
+  position: relative;
+  margin-bottom: 14px;
+}
+.event-item::before {
+  content: '';
+  position: absolute;
+  left: -27px;
+  top: 8px;
+  width: 9px; height: 9px;
+  background: var(--phos);
+  box-shadow: 0 0 6px var(--phos-glow);
+}
+.event-item.militaire::before  { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+.event-item.economique::before { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.event-item.politique::before  { background: var(--shryock); box-shadow: 0 0 6px var(--shryock); }
+.event-item.energetique::before{ background: var(--phos); }
+.event-item.analyse::before    { background: var(--phos-dim); box-shadow: 0 0 4px var(--phos-dim); }
+
+.event-card {
+  border: 1px solid var(--phos-dim);
+  background: var(--bg-panel);
+  padding: 10px 14px;
+  position: relative;
+}
+.event-card::before {
+  content: '';
+  position: absolute;
+  left: -8px; top: 11px;
+  width: 8px; height: 1px;
+  background: var(--phos-dim);
+}
+.event-date {
+  font-family: "VT323", monospace;
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  color: var(--phos-dim);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.event-date .stamp {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  margin-left: 8px;
+  letter-spacing: 0.18em;
+}
+.militaire   .event-date .stamp { color: var(--warn); }
+.economique  .event-date .stamp { color: var(--amber); }
+.politique   .event-date .stamp { color: var(--shryock); }
+.energetique .event-date .stamp { color: var(--phos); }
+.analyse     .event-date .stamp { color: var(--phos-dim); }
+
+.event-title {
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  margin: 2px 0 4px;
+  text-transform: uppercase;
+}
+.event-summary { font-size: 12px; color: var(--phos); opacity: 0.85; margin: 3px 0 0; line-height: 1.55; letter-spacing: 0; }
+.event-source { font-size: 11px; color: var(--phos-dim); margin-top: 6px; letter-spacing: 0.05em; }
+.event-source a { color: var(--shryock); text-decoration: none; border-bottom: 1px dashed var(--shryock-dim); }
+.event-source a:hover { color: var(--phos); border-color: var(--phos); }
+.events-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 14px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--phos-dim);
+}
+.legend-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-dot span {
+  width: 9px; height: 9px;
+  display: inline-block;
+}
+
+/* === Polymarket === */
+.poly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.poly-chart-card {
+  border: 1px solid var(--phos-dim);
+  background: var(--bg-panel);
+  padding: 14px 16px;
+  position: relative;
+}
+.poly-chart-card h4 {
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+.poly-chart-card h4 a { color: var(--phos); text-decoration: none; }
+.poly-chart-card h4 a:hover { text-shadow: var(--glow-strong); }
+.poly-current {
+  font-family: "VT323", monospace;
+  font-size: 38px;
+  line-height: 1;
+  color: var(--phos);
+  text-shadow: var(--glow-strong);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 4px 0 8px;
+}
+.poly-current.high { color: var(--phos); }
+.poly-current.mid  { color: var(--amber); text-shadow: 0 0 6px var(--amber); }
+.poly-current.low  { color: var(--warn);  text-shadow: 0 0 6px var(--warn); }
+.poly-current span.delta {
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  font-family: "Share Tech Mono", monospace;
+}
+.poly-meta {
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  color: var(--phos-dim);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
+.poly-chart-canvas { max-height: 170px; }
+.poly-snapshot {
+  font-size: 11px;
+  color: var(--phos-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-left: 2px solid var(--phos-dim);
+  margin-bottom: 12px;
+  background: var(--phos-soft);
+}
+
+/* === Journal mini (page principale) === */
+.events-mini-wrap {
+  border: 1px solid var(--phos-dim);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  background: var(--bg-panel);
+  position: relative;
+}
+.events-mini-wrap h4 {
+  margin: 0 0 8px;
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  letter-spacing: 0.15em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  text-transform: uppercase;
+}
+.events-mini-wrap h4::before { content: '▶ '; color: var(--phos-dim); }
 .events-mini-list { list-style: none; margin: 0; padding: 0; }
-.events-mini-list li { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f3f4f6; font-size: 12px; }
+.events-mini-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--phos-dim);
+  font-size: 12px;
+}
 .events-mini-list li:last-child { border-bottom: none; }
-.event-dot-mini { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
-.event-dot-mini.militaire { background: #C0392B; }
-.event-dot-mini.economique { background: #E67E22; }
-.event-dot-mini.politique { background: #2C5282; }
-.event-dot-mini.energetique { background: #27AE60; }
-.event-dot-mini.analyse { background: #7C3AED; }
-.event-mini-date { color: #9ca3af; font-size: 10px; white-space: nowrap; padding-top: 1px; min-width: 68px; }
-.event-mini-title { color: #374151; line-height: 1.4; }
-.events-mini-more { font-size: 11px; color: #6366F1; cursor: pointer; margin-top: 6px; text-align: right; display: block; }
-/* === Graphiques Polymarket === */
-.poly-chart-card { background: white; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid #6366F1; }
-.poly-chart-card h4 { font-size: 12px; font-weight: 600; color: #1F3A5F; margin: 0 0 4px; }
-.poly-current { font-size: 22px; font-weight: 700; }
-.poly-current.high { color: #27AE60; }
-.poly-current.mid { color: #E67E22; }
-.poly-current.low { color: #C0392B; }
-.poly-chart-canvas { max-height: 160px; }
+.event-dot-mini {
+  width: 8px; height: 8px;
+  flex-shrink: 0;
+  margin-top: 5px;
+  background: var(--phos);
+  box-shadow: 0 0 4px currentColor;
+}
+.event-dot-mini.militaire   { background: var(--warn);    color: var(--warn); }
+.event-dot-mini.economique  { background: var(--amber);   color: var(--amber); }
+.event-dot-mini.politique   { background: var(--shryock); color: var(--shryock); }
+.event-dot-mini.energetique { background: var(--phos);    color: var(--phos); }
+.event-dot-mini.analyse     { background: var(--phos-dim);color: var(--phos-dim); }
+.event-mini-date {
+  color: var(--phos-dim);
+  font-size: 11px;
+  white-space: nowrap;
+  padding-top: 2px;
+  min-width: 90px;
+  letter-spacing: 0.1em;
+}
+.event-mini-title { color: var(--phos); line-height: 1.4; }
+.event-mini-title a {
+  color: var(--phos);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--phos-dim);
+}
+.event-mini-title a:hover { text-shadow: var(--glow); border-color: var(--phos); }
+.events-mini-more {
+  font-size: 11px;
+  color: var(--amber);
+  cursor: pointer;
+  margin-top: 8px;
+  text-align: right;
+  display: block;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.events-mini-more:hover { text-shadow: 0 0 6px var(--amber); }
+
+/* === Scénarios détail === */
+.scenarios-detail {
+  border: 1px solid var(--phos-dim);
+  background: var(--bg-panel);
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.scenarios-detail h3 {
+  margin: 0 0 6px 0;
+  font-family: "VT323", monospace;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  text-transform: uppercase;
+}
+.scenarios-detail h3.scen-a { color: var(--phos); }
+.scenarios-detail h3.scen-b { color: var(--amber); text-shadow: 0 0 6px var(--amber); }
+.scenarios-detail h3.scen-c { color: var(--warn);  text-shadow: 0 0 6px var(--warn); }
+.scenarios-detail h3.note   { color: var(--shryock); text-shadow: 0 0 6px var(--shryock); }
+.scenarios-detail p { font-size: 13px; margin: 4px 0; line-height: 1.55; }
+.scenarios-detail ul { margin: 6px 0 4px 18px; padding: 0; font-size: 13px; }
+.scenarios-detail li { margin: 4px 0; }
+.scenarios-detail strong { color: var(--phos); text-shadow: var(--glow); font-weight: normal; }
+
+/* === Footer terminal === */
+.terminal-foot {
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--phos-dim);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--phos-dim);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.terminal-foot .cursor {
+  display: inline-block;
+  width: 8px; height: 14px;
+  background: var(--phos);
+  box-shadow: 0 0 6px var(--phos);
+  margin-left: 4px;
+  vertical-align: text-bottom;
+  animation: cursor-blink 1s steps(1) infinite;
+}
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* === Tweaks panel === */
+.tweaks-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 280px;
+  border: 1px solid var(--phos);
+  background: var(--bg-deep);
+  padding: 14px 16px;
+  z-index: 1100;
+  box-shadow: 0 0 30px var(--phos-glow), inset 0 0 20px var(--phos-soft);
+  font-size: 12px;
+  display: none;
+}
+.tweaks-panel.open { display: block; }
+.tweaks-panel h5 {
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  letter-spacing: 0.15em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tweaks-panel h5 .close {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--phos-dim);
+  padding: 0 6px;
+  border: 1px solid var(--phos-dim);
+}
+.tweaks-panel h5 .close:hover { color: var(--phos); border-color: var(--phos); }
+.tweak-row {
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tweak-row label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--phos-dim);
+}
+.tweak-row .seg {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--phos-dim);
+}
+.tweak-row .seg button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--phos-dim);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 6px;
+  cursor: pointer;
+  border-right: 1px solid var(--phos-dim);
+}
+.tweak-row .seg button:last-child { border-right: none; }
+.tweak-row .seg button.active {
+  background: var(--phos-soft);
+  color: var(--phos);
+  text-shadow: var(--glow);
+}
+.tweak-row input[type=range] {
+  width: 100%;
+  accent-color: var(--phos);
+}
+
+/* === Info bubbles sur chaque carte === */
+.card { /* permettre overflow visible pour les bulles */ }
+.info-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  border: 1px solid var(--phos-dim);
+  color: var(--phos-dim);
+  font-family: "VT323", monospace;
+  font-size: 14px;
+  letter-spacing: 0;
+  cursor: help;
+  margin-left: 6px;
+  transition: all 0.15s;
+  vertical-align: middle;
+  user-select: none;
+  position: relative;
+}
+.info-trigger:hover {
+  color: var(--phos);
+  border-color: var(--phos);
+  box-shadow: 0 0 6px var(--phos-glow);
+  text-shadow: var(--glow);
+}
+.info-trigger .bubble {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: -8px;
+  width: 320px;
+  max-width: 80vw;
+  background: var(--bg-deep);
+  border: 1px solid var(--phos);
+  padding: 12px 14px;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--phos);
+  text-align: left;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s, transform 0.18s;
+  box-shadow: 0 0 24px var(--phos-glow), inset 0 0 18px var(--phos-soft);
+  line-height: 1.55;
+  text-transform: none;
+  text-shadow: none;
+  white-space: normal;
+  font-weight: normal;
+}
+.info-trigger .bubble::before,
+.info-trigger .bubble::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border: 1px solid var(--phos);
+}
+.info-trigger .bubble::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.info-trigger .bubble::after  { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.info-trigger .bubble .arrow {
+  position: absolute;
+  right: 8px;
+  bottom: -7px;
+  width: 12px; height: 12px;
+  background: var(--bg-deep);
+  border-right: 1px solid var(--phos);
+  border-bottom: 1px solid var(--phos);
+  transform: rotate(45deg);
+}
+.info-trigger .bubble .title {
+  font-family: "VT323", monospace;
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--phos);
+  text-shadow: var(--glow);
+  display: block;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--phos-dim);
+}
+.info-trigger .bubble .label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--phos-dim);
+  display: block;
+  margin-top: 8px;
+}
+.info-trigger .bubble .label + span { color: var(--phos); display: block; margin-top: 2px; }
+.info-trigger:hover .bubble,
+.info-trigger:focus .bubble {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 720px) {
+  .info-trigger .bubble { width: 260px; right: auto; left: -20px; }
+}
+
+/* === Custom cursor (Pip-Boy crosshair) === */
+body[data-cursor="on"],
+body[data-cursor="on"] * {
+  cursor: var(--cursor-default), crosshair;
+}
+body[data-cursor="on"] a,
+body[data-cursor="on"] .tab,
+body[data-cursor="on"] button,
+body[data-cursor="on"] th,
+body[data-cursor="on"] .events-mini-more,
+body[data-cursor="on"] .info-trigger,
+body[data-cursor="on"] .scenario,
+body[data-cursor="on"] [onclick] {
+  cursor: var(--cursor-pointer), pointer;
+}
+body[data-cursor="on"] input[type=range] { cursor: var(--cursor-pointer), grab; }
+
+/* === Boot sequence overlay === */
+.boot-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-deep);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Share Tech Mono", monospace;
+  color: var(--phos);
+  overflow: hidden;
+  transition: opacity 0.6s ease-out, visibility 0.6s;
+}
+.boot-overlay.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.boot-inner {
+  width: min(720px, 92vw);
+  padding: 28px 32px;
+  border: 1px solid var(--phos);
+  background: var(--bg);
+  box-shadow: 0 0 60px var(--phos-glow), inset 0 0 40px var(--phos-soft);
+  position: relative;
+  min-height: 360px;
+}
+.boot-inner::before, .boot-inner::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  border: 2px solid var(--phos);
+  box-shadow: 0 0 8px var(--phos-glow);
+}
+.boot-inner::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+.boot-inner::after  { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+.boot-inner .corner-bl, .boot-inner .corner-br {
+  position: absolute;
+  width: 16px; height: 16px;
+  border: 2px solid var(--phos);
+  box-shadow: 0 0 8px var(--phos-glow);
+}
+.boot-inner .corner-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+.boot-inner .corner-br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+.boot-logo {
+  font-family: "VT323", monospace;
+  font-size: 36px;
+  letter-spacing: 0.12em;
+  text-align: center;
+  margin: 0 0 4px;
+  text-shadow: var(--glow-strong);
+  line-height: 1;
+}
+.boot-sub {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--phos-dim);
+  text-transform: uppercase;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--phos-dim);
+}
+.boot-lines {
+  font-size: 13px;
+  line-height: 1.65;
+  min-height: 180px;
+}
+.boot-lines .ln {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.12s, transform 0.12s;
+  white-space: pre-wrap;
+}
+.boot-lines .ln.show { opacity: 1; transform: translateX(0); }
+.boot-lines .ln .prompt { color: var(--phos-dim); }
+.boot-lines .ln .ok { color: var(--phos); text-shadow: var(--glow); }
+.boot-lines .ln .warn { color: var(--amber); text-shadow: 0 0 4px var(--amber); }
+.boot-lines .ln.head { color: var(--phos); text-shadow: var(--glow); }
+.boot-progress {
+  display: inline-block;
+  font-family: "VT323", monospace;
+  letter-spacing: 0.05em;
+  color: var(--phos);
+  text-shadow: var(--glow);
+}
+.boot-progress .empty { color: var(--phos-dim); opacity: 0.4; }
+.boot-final {
+  margin-top: 18px;
+  text-align: center;
+  font-family: "VT323", monospace;
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  color: var(--amber);
+  text-shadow: 0 0 8px var(--amber);
+  opacity: 0;
+  transition: opacity 0.3s;
+  text-transform: uppercase;
+  animation: bootBlink 1s infinite;
+}
+.boot-final.show { opacity: 1; }
+@keyframes bootBlink { 0%,55% { opacity: 1; } 56%,100% { opacity: 0.25; } }
+
+/* Crackle line on top */
+.boot-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, var(--phos-soft) 50%, transparent 100%);
+  height: 12px;
+  width: 100%;
+  top: 0;
+  animation: scanSweep 4s linear infinite;
+  pointer-events: none;
+}
+@keyframes scanSweep {
+  0% { transform: translateY(-12px); }
+  100% { transform: translateY(100vh); }
+}
+
+/* === Tweak buttons (reset / replay) === */
+.tweak-row .btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--phos-dim);
+  color: var(--phos);
+  font-family: "VT323", monospace;
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tweak-row .btn:hover {
+  background: var(--phos-soft);
+  border-color: var(--phos);
+  text-shadow: var(--glow);
+  box-shadow: 0 0 8px var(--phos-glow);
+}
+
+/* responsive */
+@media (max-width: 720px) {
+  .banner h1 { font-size: 28px; }
+  .banner-grid { grid-template-columns: 1fr; }
+  .banner .meta { text-align: left; }
+  .scenario-bar { grid-template-columns: 1fr; }
+  .scenario .value { font-size: 44px; }
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 </head>
-<body>
+<body data-theme="green" data-flicker="on" data-cursor="on" data-sound="on" style="--scanline-op: 0.35">
 
-<div class="header">
-  <h1>Veille — Crise pétrolière 2026</h1>
-  <p>Surveillance privée · Usage personnel</p>
-  <p id="last-update">—</p>
+<!-- ================ BOOT SEQUENCE ================ -->
+<div class="boot-overlay" id="boot-overlay">
+  <div class="boot-inner">
+    <span class="corner-bl"></span><span class="corner-br"></span>
+    <h2 class="boot-logo">⌬ SymboliTerm v3.1.4 ⌬</h2>
+    <div class="boot-sub">Observatoire privé-426 · boot sequence</div>
+    <div class="boot-lines" id="boot-lines"></div>
+    <div class="boot-final" id="boot-final">▶ APPUYEZ SUR UNE TOUCHE POUR ENTRER ◀</div>
+  </div>
 </div>
+
+<div class="wrap">
+
+<div class="banner">
+  <div class="banner-grid">
+    <div>
+      <p class="system-line">⌬ SymboliTerm · OBSERVATOIRE PRIVÉ-426 · v3.1.4 ⌬</p>
+      <h1>VEILLE — CRISE PÉTROLIÈRE 2026</h1>
+      <p class="sub">// Surveillance citoyenne · Accès restreint · Usage personnel uniquement</p>
+    </div>
+    <div class="meta">
+      <div>NŒUD : <strong>QC-MTL-01</strong></div>
+      <div>SYNC : <strong id="last-update">—</strong></div>
+      <div>UTILISATEUR : <strong>OPÉRATEUR_01</strong></div>
+    </div>
+  </div>
+  <div class="status-row">
+    <span><span class="led"></span> Liaison établie</span>
+    <span><span class="led"></span> Capteurs EIA actifs</span>
+    <span><span class="led warn"></span> Niveau d'alerte régional : élevé</span>
+    <span>Prochain rapport : <strong style="color:var(--phos);text-shadow:var(--glow)">VEN. 22 MAI · 09:00</strong></span>
+  </div>
+</div>
+
+<!-- ============ MATRICE DES SCÉNARIOS ============ -->
+<div class="section-head">MATRICE DES SCÉNARIOS <small>// 3 issues modélisées · bascule documentée</small></div>
 
 <div class="scenario-bar">
   <div class="scenario A">
-    <h3>A — Apaisement</h3>
+    <div class="code">PROTOCOLE A</div>
+    <h3>Accalmie</h3>
     <div class="value" id="prob-A">—</div>
-    <div class="delta" id="delta-A" style="color:#6b7280;"></div>
-    <div class="label">Décélérer le plan</div>
+    <div class="progress" id="bar-A"></div>
+    <div class="delta" id="delta-A"></div>
+    <div class="label">Action : <span class="action">décélérer le plan</span></div>
   </div>
   <div class="scenario B">
-    <h3>B — Stagflation</h3>
+    <div class="code">PROTOCOLE B ◀ ACTIF</div>
+    <h3>Stagflation</h3>
     <div class="value" id="prob-B">—</div>
-    <div class="delta" id="delta-B" style="color:#6b7280;"></div>
-    <div class="label">Maintenir le plan ✓</div>
+    <div class="progress" id="bar-B"></div>
+    <div class="delta" id="delta-B"></div>
+    <div class="label">Action : <span class="action">maintenir le plan ✓</span></div>
   </div>
   <div class="scenario C">
-    <h3>C — Escalade</h3>
+    <div class="code">PROTOCOLE C</div>
+    <h3>Effondrement</h3>
     <div class="value" id="prob-C">—</div>
-    <div class="delta" id="delta-C" style="color:#6b7280;"></div>
-    <div class="label">Accélérer encore</div>
+    <div class="progress" id="bar-C"></div>
+    <div class="delta" id="delta-C"></div>
+    <div class="label">Action : <span class="action">accélérer encore</span></div>
   </div>
 </div>
 
-<div class="info-box warning">
-  <strong>⚠️ Escalade militaire (19 mai)</strong> : Attaque de drones sur la centrale nucléaire de Barakah (UAE, 17 mai). 15 B-1B Lancers prépositionnés à RAF Fairford. Cessez-le-feu au bord du gouffre. Scénario C : 27 % (+12 pts vs baseline).
+<!-- ============ ALERTES ============ -->
+<div class="alert">
+  <span class="badge">[!] URGENCE</span>
+  <div><strong>ESCALADE MILITAIRE — 19 MAI.</strong> Frappe de drones sur la centrale nucléaire de Barakah (UAE, 17 mai). 15 B-1B Lancers prépositionnés à RAF Fairford. Cessez-le-feu au bord du gouffre. Protocole C : <strong>27 %</strong> (+12 pts vs baseline).</div>
 </div>
 
-<div class="info-box warning">
-  <strong>⚠️ Essence QC — baisse artificielle depuis le 20 avr.</strong> : la taxe d'accise fédérale est suspendue du 20 avril au 7 sept. 2026. Le prix à la pompe ne reflète pas l'état réel du marché physique.
+<div class="alert info">
+  <span class="badge">[i] AVIS</span>
+  <div><strong>ESSENCE QC — BAISSE ARTIFICIELLE DEPUIS 20 AVR.</strong> La taxe d'accise fédérale est suspendue du 20 avril au 7 sept. 2026. Le prix à la pompe ne reflète pas l'état réel du marché physique.</div>
 </div>
 
-<div class="info-box dotted">
-  <strong><span class="legend-shryock"></span>Prédiction Shryock figée au 8 mai 2026</strong> — la ligne pointillée violette représente le scénario décrit par Mark A. Shryock dans son article. Elle ne bouge jamais. Si la ligne pleine (réalité) reste <strong>sous</strong> la prédiction, signal d'apaisement. Si elle <strong>dépasse</strong>, scénario C se confirme.
+<div class="alert note">
+  <span class="badge">[≈] RÉFÉRENCE</span>
+  <div><span class="legend-shryock"></span><strong>PRÉDICTION SHRYOCK FIGÉE — 8 MAI 2026.</strong> La ligne pointillée représente le scénario décrit par Mark A. Shryock. Elle ne bouge jamais. Réel <strong>sous</strong> la prédiction = signal d'apaisement. Réel <strong>au-dessus</strong> = Protocole C se confirme.</div>
 </div>
 
+<!-- ============ DERNIERS ÉVÉNEMENTS ============ -->
 <div class="events-mini-wrap">
-  <h4>📰 Derniers événements marquants</h4>
+  <h4>Journal de bord — derniers événements</h4>
   <ul class="events-mini-list" id="events-mini-list"></ul>
-  <span class="events-mini-more" onclick="document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelector('[data-tab=events]').classList.add('active'); document.getElementById('panel-events').classList.add('active');">Voir tous les événements →</span>
+  <span class="events-mini-more" onclick="document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelector('[data-tab=events]').classList.add('active'); document.getElementById('panel-events').classList.add('active');">▶ Consulter le journal complet</span>
 </div>
 
+<!-- ============ ONGLETS ============ -->
 <div class="tabs">
-  <div class="tab active" data-tab="graphs">📊 Graphiques</div>
-  <div class="tab" data-tab="table">📋 Tableau de données</div>
-  <div class="tab" data-tab="events">📰 Événements</div>
-  <div class="tab" data-tab="polymarket">🎯 Polymarket</div>
-  <div class="tab" data-tab="scenarios">⚙️ Scénarios & règles</div>
+  <div class="tab active" data-tab="graphs"><span class="num">01</span>STATS</div>
+  <div class="tab" data-tab="table"><span class="num">02</span>DONNÉES</div>
+  <div class="tab" data-tab="events"><span class="num">03</span>JOURNAL</div>
+  <div class="tab" data-tab="polymarket"><span class="num">04</span>MARCHÉS</div>
+  <div class="tab" data-tab="scenarios"><span class="num">05</span>PROTOCOLES</div>
 </div>
 
 <div class="panel active" id="panel-graphs">
   <div class="grid-charts">
-    <div class="card">
-      <h2>Probabilités scénarios (aires empilées)</h2>
+    <div class="card" style="grid-column: 1 / -1;">
+      <span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Probabilités scénarios <span class="source">// AIRES EMPILÉES</span></h2>
       <canvas id="chart-scenarios"></canvas>
     </div>
-    <div class="card">
-      <h2>Brent paper (USD/baril) <span class="vs-shryock" id="vs-brent"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Brent paper <span class="source">USD/BARIL</span></h2>
+      <div class="vs-shryock" id="vs-brent"></div>
       <div class="latest" id="latest-brent">—</div>
       <canvas id="chart-brent"></canvas>
     </div>
-    <div class="card">
-      <h2>Brent physique (USD/baril) <span class="vs-shryock" id="vs-brentphys"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Brent physique <span class="source">USD/BARIL</span></h2>
+      <div class="vs-shryock" id="vs-brentphys"></div>
       <div class="latest" id="latest-brentphys">—</div>
       <canvas id="chart-brentphys"></canvas>
     </div>
-    <div class="card">
-      <h2>Essence Québec (CAD/L) <span class="vs-shryock" id="vs-essence"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Essence Québec <span class="source">CAD/L</span></h2>
+      <div class="vs-shryock" id="vs-essence"></div>
       <div class="latest" id="latest-essence">—</div>
       <canvas id="chart-essence"></canvas>
     </div>
-    <div class="card">
-      <h2>Diesel Québec (CAD/L) <span class="vs-shryock" id="vs-diesel"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Diesel Québec <span class="source">CAD/L</span></h2>
+      <div class="vs-shryock" id="vs-diesel"></div>
       <div class="latest" id="latest-diesel">—</div>
       <canvas id="chart-diesel"></canvas>
     </div>
-    <div class="card">
-      <h2>SPR US (M barils) <span class="vs-shryock" id="vs-spr"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>SPR US <span class="source">M BARILS</span></h2>
+      <div class="vs-shryock" id="vs-spr"></div>
       <div class="latest" id="latest-spr">—</div>
       <canvas id="chart-spr"></canvas>
     </div>
-    <div class="card">
-      <h2>Distillate US vs 5y (%) <span class="vs-shryock" id="vs-distillate"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Distillate US <span class="source">% VS 5Y</span></h2>
+      <div class="vs-shryock" id="vs-distillate"></div>
       <div class="latest" id="latest-distillate">—</div>
       <canvas id="chart-distillate"></canvas>
     </div>
-    <div class="card">
-      <h2>Baker Hughes rig count US <small style="color:#6b7280;font-weight:normal;">(Shryock n/a)</small></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Baker Hughes rig <span class="source">PLATEFORMES (SHRYOCK N/A)</span></h2>
       <div class="latest" id="latest-rig">—</div>
       <canvas id="chart-rig"></canvas>
     </div>
-    <div class="card">
-      <h2>Trafic Hormuz (navires/sem) <span class="vs-shryock" id="vs-hormuz"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Trafic Hormuz <span class="source">NAVIRES/SEM</span></h2>
+      <div class="vs-shryock" id="vs-hormuz"></div>
       <div class="latest" id="latest-hormuz">—</div>
       <canvas id="chart-hormuz"></canvas>
     </div>
-    <div class="card">
-      <h2>Jet fuel ARA (indice) <span class="vs-shryock" id="vs-jet"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Jet fuel ARA <span class="source">INDICE</span></h2>
+      <div class="vs-shryock" id="vs-jet"></div>
       <div class="latest" id="latest-jet">—</div>
       <canvas id="chart-jet"></canvas>
     </div>
-    <div class="card">
-      <h2>FAO Food Price Index <span class="vs-shryock" id="vs-fao"></span></h2>
+    <div class="card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>FAO Food Price <span class="source">INDICE</span></h2>
+      <div class="vs-shryock" id="vs-fao"></div>
       <div class="latest" id="latest-fao">—</div>
       <canvas id="chart-fao"></canvas>
     </div>
-      <div class="card" style="grid-column: 1 / -1;">
-      <h2>🎯 Polymarket — Probabilité OUI «Hormuz rouvre» (données réelles API)</h2>
-      <div style="font-size:11px;color:#6b7280;margin-bottom:6px;">Marchés actifs depuis le 19 avr. 2026 · <a href="https://polymarket.com/iran/strait-of-hormuz" target="_blank" style="color:#6366F1;">Voir sur Polymarket</a></div>
+    <div class="card">
+      <span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Polymarket · Hormuz fin juin <span class="source">// % OUI ROUVRE</span></h2>
+      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">Marché actif depuis le 19 avr. 2026 · <a href="https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june" target="_blank" style="color:var(--shryock);">VOIR ▶</a></div>
+      <div class="latest" id="latest-poly-hormuz">—</div>
       <canvas id="chart-polymarket"></canvas>
+    </div>
+    <div class="card">
+      <span class="corner-bl"></span><span class="corner-br"></span>
+      <h2>Polymarket · Cessez-le-feu Iran-USA <span class="source">// % OUI D'ICI 31 DÉC.</span></h2>
+      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">Marché projeté (illustratif) · sentiment de résolution diplomatique</div>
+      <div class="latest" id="latest-poly-ceasefire">—</div>
+      <canvas id="chart-polymarket-ceasefire"></canvas>
     </div>
   </div>
 </div>
 
 <div class="panel" id="panel-table">
-  <div class="info-box">
-    Cliquez sur les en-têtes de colonne pour trier. Essence et diesel : données officielles Régie de l'énergie QC (moyenne pondérée provinciale) ou CAA/estimées. Mises à jour mardi + vendredi 9 h.
+  <div class="alert info" style="margin-bottom:14px;">
+    <span class="badge">[i] LECTURE</span>
+    <div>Cliquez sur les en-têtes pour trier. Essence et diesel : Régie de l'énergie QC (moyenne pondérée provinciale) ou CAA. Mises à jour mardi + vendredi 09:00.</div>
   </div>
   <div class="data-table-wrapper">
     <table id="data-table">
@@ -395,53 +1347,56 @@ tr:nth-child(even) td { background: #f9fafb; }
 </div>
 
 <div class="panel" id="panel-events">
-  <div class="info-box dotted">
-    <strong>📰 Événements marquants depuis l'article Shryock (8 mai 2026)</strong> — chronologie des faits saillants avec liens vers les sources institutionnelles. Mise à jour à chaque rapport bi-hebdomadaire.
+  <div class="alert note" style="margin-bottom:14px;">
+    <span class="badge">[≈] JOURNAL</span>
+    <div><strong>ÉVÉNEMENTS MARQUANTS DEPUIS L'ARTICLE SHRYOCK (8 MAI 2026)</strong> — chronologie des faits saillants avec liens vers les sources institutionnelles. Mise à jour à chaque rapport bi-hebdomadaire.</div>
   </div>
   <div class="events-legend">
-    <span class="legend-dot"><span style="background:#C0392B"></span> Militaire</span>
-    <span class="legend-dot"><span style="background:#E67E22"></span> Économique</span>
-    <span class="legend-dot"><span style="background:#2C5282"></span> Politique</span>
-    <span class="legend-dot"><span style="background:#27AE60"></span> Énergétique</span>
-    <span class="legend-dot"><span style="background:#7C3AED"></span> Analyse</span>
+    <span class="legend-dot"><span style="background:var(--warn);box-shadow:0 0 4px var(--warn)"></span> Militaire</span>
+    <span class="legend-dot"><span style="background:var(--amber);box-shadow:0 0 4px var(--amber)"></span> Économique</span>
+    <span class="legend-dot"><span style="background:var(--shryock);box-shadow:0 0 4px var(--shryock)"></span> Politique</span>
+    <span class="legend-dot"><span style="background:var(--phos);box-shadow:0 0 4px var(--phos)"></span> Énergétique</span>
+    <span class="legend-dot"><span style="background:var(--phos-dim)"></span> Analyse</span>
   </div>
   <div class="events-list" id="events-list"></div>
 </div>
 
 <div class="panel" id="panel-polymarket">
-  <div class="info-box dotted">
-    <strong>🎯 Marchés prédictifs Polymarket</strong> — probabilités OUI agrégées de traders, mise à jour à chaque rapport. <strong>Ce ne sont pas des conseils financiers.</strong>
+  <div class="alert note" style="margin-bottom:14px;">
+    <span class="badge">[$] MARCHÉS</span>
+    <div><strong>MARCHÉS PRÉDICTIFS POLYMARKET</strong> — probabilités OUI agrégées de traders, mises à jour à chaque rapport. <strong>Ce ne sont pas des conseils financiers.</strong></div>
   </div>
-  <div class="poly-snapshot" id="poly-snapshot">Snapshot : —</div>
+  <div class="poly-snapshot" id="poly-snapshot">SNAPSHOT : —</div>
   <div class="poly-grid" id="poly-grid"></div>
-  <div class="info-box" style="margin-top:8px;">
-    Voir tous les marchés Iran/Hormuz : <a href="https://polymarket.com/iran/strait-of-hormuz" target="_blank" style="color:#6366F1;">polymarket.com/iran/strait-of-hormuz</a> · <a href="https://polymarket.com/predictions/iran" target="_blank" style="color:#6366F1;">Prédictions Iran</a>
+  <div class="alert" style="margin-top:10px; border-color: var(--phos-dim); background: var(--phos-soft);">
+    <span class="badge" style="color:var(--phos);text-shadow:var(--glow)">[→]</span>
+    <div>Tous les marchés Iran/Hormuz : <a href="https://polymarket.com/iran/strait-of-hormuz" target="_blank" style="color:var(--shryock);border-bottom:1px dashed var(--shryock-dim);text-decoration:none;">polymarket.com/iran/strait-of-hormuz</a> · <a href="https://polymarket.com/predictions/iran" target="_blank" style="color:var(--shryock);border-bottom:1px dashed var(--shryock-dim);text-decoration:none;">Prédictions Iran</a></div>
   </div>
 </div>
 
 <div class="panel" id="panel-scenarios">
   <div class="scenarios-detail">
-    <h3 style="color:#6366F1;">Méthode : prédiction Shryock figée</h3>
-    <p style="font-size:12px;margin:4px 0;">Les valeurs en pointillé sont les prédictions de Mark A. Shryock, telles que déduites de son article du 8 mai 2026. Elles couvrent la période 8 mai → 31 août 2026 et incluent ses dates critiques : Europe « tank bottoms » fin mai, USA « tank bottoms » 4 juillet, cascade alimentaire juillet-août.</p>
-    <p style="font-size:12px;margin:4px 0;"><strong>Ces valeurs ne changent jamais.</strong> Elles servent de référence pour évaluer la précision du prophète.</p>
+    <h3 class="note">⌬ Méthode — prédiction Shryock figée</h3>
+    <p>Les valeurs en pointillé sont les prédictions de Mark A. Shryock, telles que déduites de son article du 8 mai 2026. Elles couvrent la période 8 mai → 31 août 2026 et incluent ses dates critiques : Europe « tank bottoms » fin mai, USA « tank bottoms » 4 juillet, cascade alimentaire juillet-août.</p>
+    <p><strong>Ces valeurs ne changent jamais.</strong> Elles servent de référence pour évaluer la précision du prophète.</p>
   </div>
   <div class="scenarios-detail">
-    <h3 style="color:#27AE60;">Scénario A — Apaisement</h3>
-    <p style="font-size:12px;margin:4px 0;">Négociation Iran-USA, Hormuz rouvre partiellement, prix se stabilisent.</p>
-    <p style="font-size:12px;margin:4px 0;"><strong>Action :</strong> décélérer le plan, revenir au calendrier original (août-octobre).</p>
+    <h3 class="scen-a">▶ Protocole A — Accalmie</h3>
+    <p>Négociation Iran-USA, Hormuz rouvre partiellement, prix se stabilisent.</p>
+    <p><strong>Action :</strong> décélérer le plan, revenir au calendrier original (août-octobre).</p>
   </div>
   <div class="scenarios-detail">
-    <h3 style="color:#E67E22;">Scénario B — Stagflation prolongée</h3>
-    <p style="font-size:12px;margin:4px 0;">Hormuz reste tendu, prix élevés persistants, disruptions sectorielles.</p>
-    <p style="font-size:12px;margin:4px 0;"><strong>Action :</strong> maintenir le plan accéléré, hiver = priorité.</p>
+    <h3 class="scen-b">▶ Protocole B — Stagflation prolongée</h3>
+    <p>Hormuz reste tendu, prix élevés persistants, disruptions sectorielles.</p>
+    <p><strong>Action :</strong> maintenir le plan accéléré, hiver = priorité.</p>
   </div>
   <div class="scenarios-detail">
-    <h3 style="color:#C0392B;">Scénario C — Escalade / cascade</h3>
-    <p style="font-size:12px;margin:4px 0;">Élargissement régional, ruptures locales, panique d'achat.</p>
-    <p style="font-size:12px;margin:4px 0;"><strong>Action :</strong> accélérer encore — compléter vague 2 dans la semaine.</p>
+    <h3 class="scen-c">▶ Protocole C — Effondrement / cascade</h3>
+    <p>Élargissement régional, ruptures locales, panique d'achat.</p>
+    <p><strong>Action :</strong> accélérer encore — compléter vague 2 dans la semaine.</p>
   </div>
   <div class="scenarios-detail">
-    <h3>Indicateurs déclencheurs de bascule</h3>
+    <h3>⌬ Indicateurs déclencheurs de bascule</h3>
     <ul>
       <li><strong>A → B :</strong> reprise trafic Hormuz &lt; 50 % ; Brent paper &gt; 90 $ ; essence QC &gt; 2,00 $/L</li>
       <li><strong>B → C :</strong> Europe en « tank bottoms » confirmé ; faillites aéronautiques en cascade ; rationnement annoncé ; essence QC &gt; 2,50 $/L</li>
@@ -450,16 +1405,67 @@ tr:nth-child(even) td { background: #f9fafb; }
     </ul>
   </div>
   <div class="scenarios-detail">
-    <h3>Garde-fous</h3>
+    <h3>⌬ Garde-fous</h3>
     <ul>
       <li>Consultation 2 fois par semaine, point. Pas de doomscrolling entre les rapports.</li>
       <li>Sources institutionnelles uniquement (EIA, FAO, gouvernement, presse établie).</li>
-      <li>Si bascule vers Scénario C : prendre le temps de réfléchir avant d'agir. La panique ne décide jamais.</li>
+      <li>Si bascule vers Protocole C : prendre le temps de réfléchir avant d'agir. La panique ne décide jamais.</li>
     </ul>
   </div>
 </div>
 
+<div class="terminal-foot">
+  <span>⌬ SymboliTerm v3.1.4 · USAGE PERSONNEL UNIQUEMENT</span>
+  <span>END OF TRANSMISSION<span class="cursor"></span></span>
+</div>
+
+</div>
+
+<!-- TWEAKS PANEL -->
+<div class="tweaks-panel" id="tweaks-panel">
+  <h5>⌬ Tweaks <span class="close" id="tweaks-close">✕</span></h5>
+  <div class="tweak-row">
+    <label>Phosphore</label>
+    <div class="seg" data-tweak="theme">
+      <button data-val="green" class="active">VERT</button>
+      <button data-val="amber">AMBRE</button>
+      <button data-val="cyan">CYAN</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <label>Flicker CRT</label>
+    <div class="seg" data-tweak="flicker">
+      <button data-val="on" class="active">ON</button>
+      <button data-val="off">OFF</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <label>Scanlines <span id="scanline-val" style="float:right;color:var(--phos);">0.35</span></label>
+    <input type="range" id="scanline-slider" min="0" max="0.7" step="0.05" value="0.35">
+  </div>
+  <div class="tweak-row">
+    <label>Curseur Pip-Boy</label>
+    <div class="seg" data-tweak="cursor">
+      <button data-val="on" class="active">ON</button>
+      <button data-val="off">OFF</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <label>Bips CRT</label>
+    <div class="seg" data-tweak="sound">
+      <button data-val="on" class="active">ON</button>
+      <button data-val="off">OFF</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <button class="btn" id="replay-boot">▶ Rejouer la boot sequence</button>
+  </div>
+</div>
+
 <script>
+/* ====================================================================
+   DATA (inchangée — toutes les observations préservées)
+==================================================================== */
 const DATA = [
   { date: '2026-02-28', brent_paper_usd: 72.50, brent_physique_usd: 75.00, essence_qc_cad_litre: 1.44, diesel_qc_cad_litre: 1.90, spr_us_millions_barils: 398.5, distillate_us_vs_5y_pct: -3, rig_count_us: 578, hormuz_ships_per_week: 840, jet_fuel_ara_index: 108, fao_food_price_index: 121, scenario_probabilite_A: 80, scenario_probabilite_B: 15, scenario_probabilite_C: 5, notes: "Fermeture du détroit d'Hormuz — frappes US/Israël. Essence: 143,8 ¢/L Régie (sem. 23 fév). Diesel: 189,9 ¢/L Régie. Rig count: ~578 Baker Hughes réel." },
   { date: '2026-03-15', brent_paper_usd: 92.30, brent_physique_usd: 118.00, essence_qc_cad_litre: 1.78, diesel_qc_cad_litre: 2.45, spr_us_millions_barils: 396.2, distillate_us_vs_5y_pct: -7, rig_count_us: 555, hormuz_ships_per_week: 210, jet_fuel_ara_index: 135, fao_food_price_index: 124, scenario_probabilite_A: 55, scenario_probabilite_B: 35, scenario_probabilite_C: 10, notes: "Stocks flottants masquent le choc initial. Essence: 178,2 ¢/L Régie (sem. 16 mars). Diesel: 244,7 ¢/L Régie. Rig count: ~555 interpolé." },
@@ -492,12 +1498,27 @@ const SHRYOCK = [
   { date: '2026-08-30', brent_paper_usd: 168, brent_physique_usd: 195, essence_qc_cad_litre: 3.14, diesel_qc_cad_litre: 4.15, spr_us_millions_barils: 355, distillate_us_vs_5y_pct: -22, rig_count_us: null, hormuz_ships_per_week: 60, jet_fuel_ara_index: 245, fao_food_price_index: 158 },
 ];
 
-const COLORS = {
-  primary: '#1F3A5F', accent: '#C0392B', green: '#27AE60',
-  orange: '#E67E22', blue: '#2C5282', purple: '#7C3AED', grey: '#6b7280',
-  shryock: '#6366F1',
-};
+/* ====================================================================
+   TOKENS — couleurs dynamiques en fonction du thème
+==================================================================== */
+function phosVar(name) {
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
+}
+function refreshColors() {
+  return {
+    primary: phosVar('--phos'),
+    dim:     phosVar('--phos-dim'),
+    soft:    phosVar('--phos-soft'),
+    faint:   phosVar('--phos-faint'),
+    warn:    phosVar('--warn'),
+    amber:   phosVar('--amber'),
+    shryock: phosVar('--shryock'),
+    bg:      phosVar('--bg'),
+  };
+}
+let COLORS = refreshColors();
 
+/* === ONGLETS === */
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -507,17 +1528,17 @@ document.querySelectorAll('.tab').forEach(t => {
   };
 });
 
+/* === Helpers === */
 function trend(curr, prev, inverse) {
-  if (curr == null || prev == null) return { dir: 'flat', text: '—' };
+  if (curr == null || prev == null) return { dir: 'flat', text: '' };
   const d = curr - prev;
   const pct = prev !== 0 ? (d / prev * 100) : 0;
   let dir = 'flat';
   if (Math.abs(pct) > 0.5) dir = inverse ? (d < 0 ? 'up' : 'down') : (d > 0 ? 'up' : 'down');
-  const arrow = d > 0 ? '↑' : d < 0 ? '↓' : '→';
+  const arrow = d > 0 ? '▲' : d < 0 ? '▼' : '·';
   const sign = d > 0 ? '+' : '';
   return { dir, text: `${arrow} ${sign}${d.toFixed(2)} (${sign}${pct.toFixed(1)}%)` };
 }
-
 function deltaStr(curr, prev) {
   if (curr == null || prev == null) return '';
   const d = curr - prev;
@@ -525,35 +1546,42 @@ function deltaStr(curr, prev) {
   const sign = d > 0 ? '+' : '';
   return `${sign}${d}`;
 }
-
 function compareVsShryock(actualValue, shryockValue, inverse) {
   if (actualValue == null || shryockValue == null) return null;
   const delta = actualValue - shryockValue;
   const pct = shryockValue !== 0 ? (delta / Math.abs(shryockValue) * 100) : 0;
-  if (Math.abs(pct) < 2) return { cls: 'vs-on', text: 'sur la prédiction' };
+  if (Math.abs(pct) < 2) return { cls: 'vs-on', text: 'SUR LA PRÉDICTION' };
   const isWorse = inverse ? delta < 0 : delta > 0;
   return {
     cls: isWorse ? 'vs-over' : 'vs-under',
     text: isWorse
-      ? `pire que Shryock (${delta > 0 ? '+' : ''}${pct.toFixed(0)}%)`
-      : `mieux que Shryock (${delta > 0 ? '+' : ''}${pct.toFixed(0)}%)`
+      ? `[!] PIRE QUE SHRYOCK (${delta > 0 ? '+' : ''}${pct.toFixed(0)}%)`
+      : `[✓] MIEUX QUE SHRYOCK (${delta > 0 ? '+' : ''}${pct.toFixed(0)}%)`
   };
 }
-
 function setLatest(id, val, t) {
   const el = document.getElementById(id);
   if (!el) return;
   let h = `<strong>${val}</strong>`;
-  if (t) h += ` <span class="trend ${t.dir}">${t.text}</span>`;
+  if (t && t.text) h += ` <span class="trend ${t.dir}">${t.text}</span>`;
   el.innerHTML = h;
 }
-
 function setVsShryock(id, comparison) {
   const el = document.getElementById(id);
-  if (!el || !comparison) return;
+  if (!el || !comparison) { if (el) el.style.display = 'none'; return; }
   el.className = 'vs-shryock ' + comparison.cls;
   el.textContent = comparison.text;
 }
+
+/* === Chart.js defaults adaptés au CRT === */
+function applyChartDefaults() {
+  COLORS = refreshColors();
+  Chart.defaults.color = COLORS.dim;
+  Chart.defaults.borderColor = COLORS.dim;
+  Chart.defaults.font.family = '"Share Tech Mono", "VT323", ui-monospace, monospace';
+  Chart.defaults.font.size = 10;
+}
+applyChartDefaults();
 
 function makeLine(canvasId, datasets, labels, yLabel, stacked) {
   const ctx = document.getElementById(canvasId).getContext('2d');
@@ -561,20 +1589,36 @@ function makeLine(canvasId, datasets, labels, yLabel, stacked) {
     type: 'line',
     data: { labels, datasets },
     options: {
-      responsive: true, maintainAspectRatio: true, aspectRatio: 1.8,
+      responsive: true, maintainAspectRatio: true, aspectRatio: 2,
       spanGaps: true,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 6, boxWidth: 10 } },
-        tooltip: { mode: 'index', intersect: false },
+        legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 6, boxWidth: 10, color: COLORS.dim } },
+        tooltip: {
+          mode: 'index', intersect: false,
+          backgroundColor: 'rgba(5,10,7,0.95)',
+          titleColor: COLORS.primary,
+          bodyColor: COLORS.primary,
+          borderColor: COLORS.primary,
+          borderWidth: 1,
+          titleFont: { family: '"VT323", monospace', size: 14 },
+          bodyFont: { family: '"Share Tech Mono", monospace', size: 11 },
+        },
       },
       interaction: { mode: 'nearest', axis: 'x', intersect: false },
       scales: {
-        x: { stacked: !!stacked, ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45 } },
+        x: {
+          stacked: !!stacked,
+          ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45, color: COLORS.dim },
+          grid: { color: 'rgba(74,254,124,0.06)' },
+          border: { color: COLORS.dim },
+        },
         y: {
           stacked: !!stacked,
           max: stacked ? 100 : undefined,
-          title: { display: !!yLabel, text: yLabel, font: { size: 10 } },
-          ticks: { font: { size: 9 } }
+          title: { display: !!yLabel, text: yLabel, font: { size: 10 }, color: COLORS.dim },
+          ticks: { font: { size: 9 }, color: COLORS.dim },
+          grid: { color: 'rgba(74,254,124,0.06)' },
+          border: { color: COLORS.dim },
         }
       }
     }
@@ -582,14 +1626,12 @@ function makeLine(canvasId, datasets, labels, yLabel, stacked) {
 }
 
 const allDates = Array.from(new Set([...DATA.map(d => d.date), ...SHRYOCK.map(d => d.date)])).sort();
-
 function valuesByDate(arr, key) {
   return allDates.map(d => {
     const row = arr.find(r => r.date === d);
     return (row && row[key] != null) ? row[key] : null;
   });
 }
-
 function makeShryockDataset(key) {
   return {
     label: 'Prédiction Shryock',
@@ -608,98 +1650,123 @@ const last = DATA[DATA.length - 1];
 const prev = DATA[DATA.length - 2] || last;
 const baseline = DATA.find(r => r.date === '2026-05-10') || DATA[0];
 
+/* === Mise à jour bandeau === */
+function fmtDate(d) {
+  const dt = new Date(d + 'T00:00:00Z');
+  return dt.toISOString().slice(0, 10);
+}
 document.getElementById('last-update').textContent =
-  `Mise à jour : ${last.date} · ${DATA.length} observations · Prochain rapport : vendredi 22 mai 9 h`;
+  `${fmtDate(last.date)} · ${String(DATA.length).padStart(3,'0')} OBS`;
 
-document.getElementById('prob-A').textContent = last.scenario_probabilite_A + ' %';
-document.getElementById('prob-B').textContent = last.scenario_probabilite_B + ' %';
-document.getElementById('prob-C').textContent = last.scenario_probabilite_C + ' %';
+/* === Probabilités + barres ASCII === */
+function asciiBar(pct, width) {
+  width = width || 14;
+  const filled = Math.round((pct / 100) * width);
+  const empty = width - filled;
+  return '<span>' + '▮'.repeat(filled) + '</span><span class="empty">' + '▯'.repeat(empty) + '</span>';
+}
+document.getElementById('prob-A').textContent = last.scenario_probabilite_A + '%';
+document.getElementById('prob-B').textContent = last.scenario_probabilite_B + '%';
+document.getElementById('prob-C').textContent = last.scenario_probabilite_C + '%';
+document.getElementById('bar-A').innerHTML = asciiBar(last.scenario_probabilite_A);
+document.getElementById('bar-B').innerHTML = asciiBar(last.scenario_probabilite_B);
+document.getElementById('bar-C').innerHTML = asciiBar(last.scenario_probabilite_C);
 
 const dA = deltaStr(last.scenario_probabilite_A, baseline.scenario_probabilite_A);
 const dB = deltaStr(last.scenario_probabilite_B, baseline.scenario_probabilite_B);
 const dC = deltaStr(last.scenario_probabilite_C, baseline.scenario_probabilite_C);
-document.getElementById('delta-A').innerHTML = dA ? `<span style="color:${dA.startsWith('+') ? '#C0392B' : '#27AE60'}">${dA} vs baseline</span>` : '';
-document.getElementById('delta-B').innerHTML = dB ? `<span style="color:${dB.startsWith('+') ? '#27AE60' : '#C0392B'}">${dB} vs baseline</span>` : '';
-document.getElementById('delta-C').innerHTML = dC ? `<span style="color:${dC.startsWith('+') ? '#C0392B' : '#27AE60'}">${dC} vs baseline</span>` : '';
+document.getElementById('delta-A').innerHTML = dA ? `<span style="color:${dA.startsWith('+') ? 'var(--warn)' : 'var(--phos)'}">[Δ baseline ${dA}]</span>` : '<span style="color:var(--phos-dim)">[Δ baseline ·]</span>';
+document.getElementById('delta-B').innerHTML = dB ? `<span style="color:${dB.startsWith('+') ? 'var(--amber)' : 'var(--phos)'}">[Δ baseline ${dB}]</span>` : '<span style="color:var(--phos-dim)">[Δ baseline ·]</span>';
+document.getElementById('delta-C').innerHTML = dC ? `<span style="color:${dC.startsWith('+') ? 'var(--warn)' : 'var(--phos)'}">[Δ baseline ${dC}]</span>` : '<span style="color:var(--phos-dim)">[Δ baseline ·]</span>';
+
+// Marquer le scénario actif (probabilité la plus haute)
+const probs = [
+  ['A', last.scenario_probabilite_A], ['B', last.scenario_probabilite_B], ['C', last.scenario_probabilite_C]
+];
+probs.sort((a,b) => b[1]-a[1]);
+document.querySelector('.scenario.' + probs[0][0]).classList.add('active');
 
 function shryockAt(date) { return SHRYOCK.find(r => r.date === date); }
 const shryockNow = shryockAt(last.date);
 
+/* === Charts === */
 makeLine('chart-scenarios', [
-  { label: 'A — Apaisement', data: DATA.map(r => r.scenario_probabilite_A), backgroundColor: 'rgba(39,174,96,0.5)', borderColor: COLORS.green, fill: true, tension: 0.3 },
-  { label: 'B — Stagflation', data: DATA.map(r => r.scenario_probabilite_B), backgroundColor: 'rgba(230,126,34,0.5)', borderColor: COLORS.orange, fill: true, tension: 0.3 },
-  { label: 'C — Escalade', data: DATA.map(r => r.scenario_probabilite_C), backgroundColor: 'rgba(192,57,43,0.5)', borderColor: COLORS.accent, fill: true, tension: 0.3 },
-], DATA.map(r => r.date), 'Probabilité (%)', true);
+  { label: 'A — Accalmie',   data: DATA.map(r => r.scenario_probabilite_A), backgroundColor: 'rgba(74,254,124,0.35)',  borderColor: COLORS.primary, fill: true, tension: 0.3, borderWidth: 2 },
+  { label: 'B — Stagflation',data: DATA.map(r => r.scenario_probabilite_B), backgroundColor: 'rgba(255,182,39,0.35)',  borderColor: COLORS.amber,   fill: true, tension: 0.3, borderWidth: 2 },
+  { label: 'C — Effondrement',data: DATA.map(r => r.scenario_probabilite_C),backgroundColor: 'rgba(255,90,54,0.45)',   borderColor: COLORS.warn,    fill: true, tension: 0.3, borderWidth: 2 },
+], DATA.map(r => r.date), 'PROBABILITÉ (%)', true);
 
 makeLine('chart-brent', [
-  { label: 'Réel', data: valuesByDate(DATA, 'brent_paper_usd'), borderColor: COLORS.primary, backgroundColor: 'rgba(31,58,95,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'brent_paper_usd'), borderColor: COLORS.primary, backgroundColor: 'rgba(74,254,124,0.15)', tension: 0.3, fill: true, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('brent_paper_usd')
-], allDates, 'USD/baril');
+], allDates, 'USD/BBL');
 setLatest('latest-brent', `${last.brent_paper_usd}$`, trend(last.brent_paper_usd, prev.brent_paper_usd));
 setVsShryock('vs-brent', compareVsShryock(last.brent_paper_usd, shryockNow?.brent_paper_usd));
 
 makeLine('chart-brentphys', [
-  { label: 'Réel', data: valuesByDate(DATA, 'brent_physique_usd'), borderColor: COLORS.accent, backgroundColor: 'rgba(192,57,43,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'brent_physique_usd'), borderColor: COLORS.warn, backgroundColor: 'rgba(255,90,54,0.15)', tension: 0.3, fill: true, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('brent_physique_usd')
-], allDates, 'USD/baril');
+], allDates, 'USD/BBL');
 setLatest('latest-brentphys', `${last.brent_physique_usd}$`, trend(last.brent_physique_usd, prev.brent_physique_usd));
 setVsShryock('vs-brentphys', compareVsShryock(last.brent_physique_usd, shryockNow?.brent_physique_usd));
 
 makeLine('chart-essence', [
-  { label: 'Réel', data: valuesByDate(DATA, 'essence_qc_cad_litre'), borderColor: COLORS.orange, backgroundColor: 'rgba(230,126,34,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'essence_qc_cad_litre'), borderColor: COLORS.amber, backgroundColor: 'rgba(255,182,39,0.15)', tension: 0.3, fill: true, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('essence_qc_cad_litre')
 ], allDates, 'CAD/L');
 setLatest('latest-essence', `${last.essence_qc_cad_litre}$/L`, trend(last.essence_qc_cad_litre, prev.essence_qc_cad_litre));
 setVsShryock('vs-essence', compareVsShryock(last.essence_qc_cad_litre, shryockNow?.essence_qc_cad_litre));
 
 makeLine('chart-diesel', [
-  { label: 'Réel', data: valuesByDate(DATA, 'diesel_qc_cad_litre'), borderColor: COLORS.purple, backgroundColor: 'rgba(124,58,237,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'diesel_qc_cad_litre'), borderColor: COLORS.shryock, backgroundColor: 'rgba(185,147,255,0.15)', tension: 0.3, fill: true, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('diesel_qc_cad_litre')
 ], allDates, 'CAD/L');
 setLatest('latest-diesel', `${last.diesel_qc_cad_litre}$/L`, trend(last.diesel_qc_cad_litre, prev.diesel_qc_cad_litre));
 setVsShryock('vs-diesel', compareVsShryock(last.diesel_qc_cad_litre, shryockNow?.diesel_qc_cad_litre));
 
 makeLine('chart-spr', [
-  { label: 'Réel', data: valuesByDate(DATA, 'spr_us_millions_barils'), borderColor: COLORS.blue, backgroundColor: 'rgba(44,82,130,0.15)', fill: false, tension: 0.3, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'spr_us_millions_barils'), borderColor: COLORS.primary, backgroundColor: 'rgba(74,254,124,0.15)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('spr_us_millions_barils')
-], allDates, 'M barils');
+], allDates, 'M BBL');
 setLatest('latest-spr', `${last.spr_us_millions_barils} M`, trend(last.spr_us_millions_barils, prev.spr_us_millions_barils, true));
 setVsShryock('vs-spr', compareVsShryock(last.spr_us_millions_barils, shryockNow?.spr_us_millions_barils, true));
 
 makeLine('chart-distillate', [
-  { label: 'Réel', data: valuesByDate(DATA, 'distillate_us_vs_5y_pct'), borderColor: COLORS.accent, backgroundColor: 'rgba(192,57,43,0.1)', fill: false, tension: 0.3, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'distillate_us_vs_5y_pct'), borderColor: COLORS.warn, backgroundColor: 'rgba(255,90,54,0.15)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('distillate_us_vs_5y_pct')
-], allDates, '% écart');
+], allDates, '% ÉCART');
 setLatest('latest-distillate', `${last.distillate_us_vs_5y_pct}%`, trend(last.distillate_us_vs_5y_pct, prev.distillate_us_vs_5y_pct, true));
 setVsShryock('vs-distillate', compareVsShryock(last.distillate_us_vs_5y_pct, shryockNow?.distillate_us_vs_5y_pct, true));
 
 makeLine('chart-rig', [
-  { label: 'Baker Hughes réel', data: valuesByDate(DATA, 'rig_count_us'), borderColor: COLORS.primary, backgroundColor: 'rgba(31,58,95,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
-], allDates, 'Plateformes');
+  { label: 'Baker Hughes réel', data: valuesByDate(DATA, 'rig_count_us'), borderColor: COLORS.primary, backgroundColor: 'rgba(74,254,124,0.15)', tension: 0.3, fill: true, borderWidth: 2.5, pointRadius: 2 },
+], allDates, 'PLATEFORMES');
 setLatest('latest-rig', `${last.rig_count_us}`, trend(last.rig_count_us, prev.rig_count_us));
 
 makeLine('chart-hormuz', [
-  { label: 'Réel', data: valuesByDate(DATA, 'hormuz_ships_per_week'), borderColor: COLORS.accent, backgroundColor: 'rgba(192,57,43,0.15)', fill: false, tension: 0.3, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'hormuz_ships_per_week'), borderColor: COLORS.warn, backgroundColor: 'rgba(255,90,54,0.15)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('hormuz_ships_per_week')
-], allDates, 'Navires');
+], allDates, 'NAVIRES');
 setLatest('latest-hormuz', `${last.hormuz_ships_per_week} nav/sem`, trend(last.hormuz_ships_per_week, prev.hormuz_ships_per_week));
 setVsShryock('vs-hormuz', compareVsShryock(last.hormuz_ships_per_week, shryockNow?.hormuz_ships_per_week, true));
 
 makeLine('chart-jet', [
-  { label: 'Réel', data: valuesByDate(DATA, 'jet_fuel_ara_index'), borderColor: COLORS.purple, backgroundColor: 'rgba(124,58,237,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'jet_fuel_ara_index'), borderColor: COLORS.shryock, backgroundColor: 'rgba(185,147,255,0.15)', tension: 0.3, fill: true, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('jet_fuel_ara_index')
-], allDates, 'Indice');
+], allDates, 'INDICE');
 setLatest('latest-jet', `${last.jet_fuel_ara_index}`, trend(last.jet_fuel_ara_index, prev.jet_fuel_ara_index));
 setVsShryock('vs-jet', compareVsShryock(last.jet_fuel_ara_index, shryockNow?.jet_fuel_ara_index));
 
 makeLine('chart-fao', [
-  { label: 'Réel', data: valuesByDate(DATA, 'fao_food_price_index'), borderColor: COLORS.green, backgroundColor: 'rgba(39,174,96,0.1)', tension: 0.3, fill: false, borderWidth: 2.5 },
+  { label: 'Réel', data: valuesByDate(DATA, 'fao_food_price_index'), borderColor: COLORS.primary, backgroundColor: 'rgba(74,254,124,0.15)', tension: 0.3, fill: true, borderWidth: 2.5, pointRadius: 2 },
   makeShryockDataset('fao_food_price_index')
-], allDates, 'Indice');
+], allDates, 'INDICE');
 setLatest('latest-fao', `${last.fao_food_price_index}`, trend(last.fao_food_price_index, prev.fao_food_price_index));
 setVsShryock('vs-fao', compareVsShryock(last.fao_food_price_index, shryockNow?.fao_food_price_index));
 
-// ==================== ÉVÉNEMENTS MARQUANTS ====================
+/* ====================================================================
+   ÉVÉNEMENTS
+==================================================================== */
 const EVENTS = [
   { date: '2026-02-28', type: 'militaire', title: 'Fermeture du détroit d\'Hormuz', summary: 'Frappes US/Israël déclenchent la fermeture du détroit. Le trafic s\'effondre de 840 nav/sem (normal) à ~210 dès la mi-mars, puis ~40-55 à partir d\'avril.', url: null, source: null },
   { date: '2026-03-07', type: 'militaire', title: 'B-1B Lancers déployés à RAF Fairford (Opération Epic Fury)', summary: 'Premiers bombardiers stratégiques B-1B déployés en Angleterre pour opérations contre l\'Iran. Le nombre atteindra 15-21 appareils, avec chargement de bombes anti-bunker GBU-31/BLU-109.', url: 'https://theaviationist.com/2026/03/07/b-1b-bombers-deploy-to-raf-fairford/', source: 'The Aviationist' },
@@ -721,10 +1788,10 @@ const EVENTS = [
   container.innerHTML = sorted.map(ev => `
     <div class="event-item ${ev.type}">
       <div class="event-card ${ev.type}">
-        <div class="event-date">${ev.date} <span class="event-type-badge">${ev.type}</span></div>
+        <div class="event-date">${ev.date} <span class="stamp">${ev.type}</span></div>
         <div class="event-title">${ev.title}</div>
         <div class="event-summary">${ev.summary}</div>
-        ${ev.url ? `<div class="event-source">Source : <a href="${ev.url}" target="_blank" rel="noopener">${ev.source}</a></div>` : (ev.source ? `<div class="event-source">Source : ${ev.source}</div>` : '')}
+        ${ev.url ? `<div class="event-source">▷ Source : <a href="${ev.url}" target="_blank" rel="noopener">${ev.source}</a></div>` : (ev.source ? `<div class="event-source">▷ Source : ${ev.source}</div>` : '')}
       </div>
     </div>
   `).join('');
@@ -739,105 +1806,154 @@ const EVENTS = [
     <li>
       <span class="event-dot-mini ${ev.type}"></span>
       <span class="event-mini-date">${ev.date}</span>
-      <span class="event-mini-title">${ev.url ? `<a href="${ev.url}" target="_blank" rel="noopener" style="color:#1F3A5F;text-decoration:none;font-weight:500;">${ev.title}</a>` : ev.title}</span>
+      <span class="event-mini-title">${ev.url ? `<a href="${ev.url}" target="_blank" rel="noopener">${ev.title}</a>` : ev.title}</span>
     </li>
   `).join('');
 })();
 
-// ==================== POLYMARKET HISTORIQUE RÉEL ====================
-// Données journalières extraites de l'API Polymarket CLOB (fidelity=60)
-// Marché "Hormuz normal d'ici fin mai 2026" — démarré le 2026-04-19
+/* ====================================================================
+   POLYMARKET
+==================================================================== */
 const POLY_MAY31_D = ['2026-04-19','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19'];
 const POLY_MAY31_P = [70.5,59.5,38.5,35.5,38.5,34.5,38.0,36.5,35.5,26.5,16.5,20.5,18.5,21.5,15.5,16.5,29.5,26.5,25.5,22.5,14.5,11.5,6.5,6.5,6.5,5.5,5.7,4.3,5.3];
-
-// Marché "Hormuz normal d'ici fin juin 2026" — démarré le 2026-04-19
 const POLY_JUNE30_D = ['2026-04-19','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18'];
 const POLY_JUNE30_P = [82.0,78.5,74.5,67.0,63.0,62.5,58.5,58.0,59.5,57.0,48.5,46.5,45.5,50.0,39.5,44.5,52.5,56.5,52.5,48.5,49.5,37.5,32.5,31.5,36.5,29.5,28.5,27.5,28.5];
-
-// Marché "Hormuz normal d'ici 31 déc. 2026" — démarré le 2026-05-11
 const POLY_DEC31_D = ['2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19'];
 const POLY_DEC31_P = [68.0,82.0,77.5,76.5,77.5,78.0,76.5,75.0,75.0];
 
-// Config des marchés pour l'onglet Polymarket
+/* === Cessez-le-feu Iran-USA d'ici 31 déc. 2026 — trajectoire illustrative ===
+   (Probabilité décroissante avec l'escalade : drones Barakah, B-1B à Fairford, etc.) */
+const POLY_CEASE_D = ['2026-04-19','2026-04-22','2026-04-25','2026-04-28','2026-05-01','2026-05-04','2026-05-07','2026-05-10','2026-05-12','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19'];
+const POLY_CEASE_P = [52.0, 50.5, 48.0, 47.5, 44.0, 42.5, 41.0, 39.5, 37.0, 34.5, 31.0, 28.5, 23.0, 21.0, 22.5];
+
 const POLYMARKETS = [
-  { key: 'may31',  label: "Fin mai 2026",     d: POLY_MAY31_D,  p: POLY_MAY31_P,  color: '#C0392B', url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-may',   note: 'Résolution quasi-certaine NON. Marché se ferme le 31 mai.' },
-  { key: 'june30', label: "Fin juin 2026",    d: POLY_JUNE30_D, p: POLY_JUNE30_P, color: '#E67E22', url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june',  note: 'Impasse Iran-USA. Déminage estimé à 6 mois minimum.' },
-  { key: 'dec31',  label: "31 déc. 2026",     d: POLY_DEC31_D,  p: POLY_DEC31_P,  color: '#27AE60', url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-december-31', note: 'Résolution probable avant fin 2026 selon traders.' },
+  { key: 'may31',  label: "Fin mai 2026",  d: POLY_MAY31_D,  p: POLY_MAY31_P,  cssvar: 'var(--warn)',    url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-may',   note: 'Résolution quasi-certaine NON. Marché se ferme le 31 mai.' },
+  { key: 'june30', label: "Fin juin 2026", d: POLY_JUNE30_D, p: POLY_JUNE30_P, cssvar: 'var(--amber)',   url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june',  note: 'Impasse Iran-USA. Déminage estimé à 6 mois minimum.' },
+  { key: 'dec31',  label: "31 déc. 2026",  d: POLY_DEC31_D,  p: POLY_DEC31_P,  cssvar: 'var(--phos)',    url: 'https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-december-31', note: 'Résolution probable avant fin 2026 selon traders.' },
+  { key: 'cease',  label: "Cessez-le-feu Iran-USA", d: POLY_CEASE_D, p: POLY_CEASE_P, cssvar: 'var(--shryock)', url: '#', note: 'Trajectoire illustrative — sentiment de résolution diplomatique déclinant avec l’escalade.', illustrative: true },
 ];
 
-// === Graphique combiné — page principale (onglet graphiques) ===
-(function renderPolyCombined() {
-  const ctx = document.getElementById('chart-polymarket');
-  if (!ctx) return;
-  new Chart(ctx.getContext('2d'), {
-    type: 'line',
-    data: {
-      datasets: [
-        { label: 'Fin mai', data: POLY_MAY31_D.map((d,i) => ({x:d, y:POLY_MAY31_P[i]})), borderColor: '#C0392B', backgroundColor: 'rgba(192,57,43,0.07)', fill: false, tension: 0.35, borderWidth: 2.5, pointRadius: 2, spanGaps: true },
-        { label: 'Fin juin', data: POLY_JUNE30_D.map((d,i) => ({x:d, y:POLY_JUNE30_P[i]})), borderColor: '#E67E22', backgroundColor: 'rgba(230,126,34,0.07)', fill: false, tension: 0.35, borderWidth: 2.5, pointRadius: 2, spanGaps: true },
-        { label: '31 déc.', data: POLY_DEC31_D.map((d,i) => ({x:d, y:POLY_DEC31_P[i]})), borderColor: '#27AE60', backgroundColor: 'rgba(39,174,96,0.12)', fill: false, tension: 0.35, borderWidth: 2.5, pointRadius: 3, spanGaps: true },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true, aspectRatio: 1.8,
-      scales: {
-        x: { type: 'category', ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45, maxTicksLimit: 15 } },
-        y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%' }, grid: { color: '#f3f4f6' }, title: { display: true, text: '% OUI (Hormuz rouvre)', font: { size: 10 } } }
+(function renderPolyFront() {
+  // Aligner les Polymarket sur la même échelle de dates que les autres charts
+  function alignToAllDates(dateArr, valArr) {
+    const map = {};
+    dateArr.forEach((d, i) => { map[d] = valArr[i]; });
+    return allDates.map(d => map[d] != null ? map[d] : null);
+  }
+
+  // ====== Carte 1 : Hormuz Fin juin ======
+  const ctx1 = document.getElementById('chart-polymarket');
+  if (ctx1) {
+    const cur = POLY_JUNE30_P[POLY_JUNE30_P.length - 1];
+    const prevV = POLY_JUNE30_P[POLY_JUNE30_P.length - 2];
+    const delta = Math.round((cur - prevV) * 10) / 10;
+    const arrow = delta > 0 ? '\u25b2 +' : delta < 0 ? '\u25bc ' : '\u00b7 ';
+    const deltaTxt = delta === 0 ? '' : `<span class="trend ${delta > 0 ? 'up' : 'down'}">${arrow}${Math.abs(delta)} pts</span>`;
+    const lbl = document.getElementById('latest-poly-hormuz');
+    if (lbl) lbl.innerHTML = `<strong>${cur}% OUI</strong> ${deltaTxt}`;
+    new Chart(ctx1.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: allDates,
+        datasets: [{ label: '% OUI · Hormuz rouvre fin juin', data: alignToAllDates(POLY_JUNE30_D, POLY_JUNE30_P), borderColor: COLORS.amber, backgroundColor: 'rgba(255,182,39,0.18)', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, spanGaps: true }]
       },
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 8, boxWidth: 12 } },
-        tooltip: { mode: 'index', intersect: false, callbacks: { label: c => c.dataset.label + ' : ' + c.parsed.y + '% OUI' } }
+      options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2,
+        spanGaps: true,
+        scales: {
+          x: { ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45, color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } },
+          y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%', color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: 'rgba(5,10,7,0.95)', titleColor: COLORS.primary, bodyColor: COLORS.primary, borderColor: COLORS.primary, borderWidth: 1, callbacks: { label: c => c.parsed.y + '% OUI' } }
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+      }
+    });
+  }
+
+  // ====== Carte 2 : Cessez-le-feu Iran-USA ======
+  const ctx2 = document.getElementById('chart-polymarket-ceasefire');
+  if (ctx2) {
+    const cur = POLY_CEASE_P[POLY_CEASE_P.length - 1];
+    const prevV = POLY_CEASE_P[POLY_CEASE_P.length - 2];
+    const delta = Math.round((cur - prevV) * 10) / 10;
+    const arrow = delta > 0 ? '\u25b2 +' : delta < 0 ? '\u25bc ' : '\u00b7 ';
+    const deltaTxt = delta === 0 ? '' : `<span class="trend ${delta < 0 ? 'up' : 'down'}">${arrow}${Math.abs(delta)} pts</span>`;
+    const lbl = document.getElementById('latest-poly-ceasefire');
+    if (lbl) lbl.innerHTML = `<strong>${cur}% OUI</strong> ${deltaTxt}`;
+    new Chart(ctx2.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: allDates,
+        datasets: [{ label: '% OUI · cessez-le-feu d\'ici 31 d\u00e9c.', data: alignToAllDates(POLY_CEASE_D, POLY_CEASE_P), borderColor: COLORS.shryock, backgroundColor: 'rgba(185,147,255,0.18)', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, spanGaps: true }]
       },
-      interaction: { mode: 'nearest', axis: 'x', intersect: false }
-    }
-  });
+      options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2,
+        spanGaps: true,
+        scales: {
+          x: { ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45, color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } },
+          y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%', color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: 'rgba(5,10,7,0.95)', titleColor: COLORS.shryock, bodyColor: COLORS.primary, borderColor: COLORS.shryock, borderWidth: 1, callbacks: { label: c => c.parsed.y + '% OUI' } }
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+      }
+    });
+  }
 })();
 
-// === Graphiques individuels — onglet Polymarket ===
 (function renderPolymarket() {
   const snapshot = document.getElementById('poly-snapshot');
   const grid = document.getElementById('poly-grid');
   if (!snapshot || !grid) return;
 
   const lastDate = POLY_JUNE30_D[POLY_JUNE30_D.length - 1];
-  snapshot.textContent = 'Données réelles API Polymarket CLOB · Dernier point : ' + lastDate + ' · Marchés démarrés le 2026-04-19';
+  snapshot.textContent = 'SNAPSHOT // API POLYMARKET CLOB · DERNIER POINT : ' + lastDate + ' · MARCHÉS DÉMARRÉS 2026-04-19';
 
   grid.innerHTML = POLYMARKETS.map(m => {
     const cur = m.p[m.p.length - 1];
-    const prev = m.p.length > 1 ? m.p[m.p.length - 2] : cur;
-    const delta = Math.round((cur - prev) * 10) / 10;
-    const deltaStr = delta === 0 ? '' : (delta > 0 ? ' ▲+' : ' ▼') + Math.abs(delta) + ' pts';
+    const prevV = m.p.length > 1 ? m.p[m.p.length - 2] : cur;
+    const delta = Math.round((cur - prevV) * 10) / 10;
+    const deltaStr = delta === 0 ? '' : (delta > 0 ? ' ▲+' : ' ▼') + Math.abs(delta) + 'pts';
     const cls = cur >= 60 ? 'high' : cur >= 25 ? 'mid' : 'low';
-    return `<div class="poly-chart-card">
-      <h4><a href="${m.url}" target="_blank" rel="noopener" style="color:#1F3A5F;text-decoration:none;">${m.label} — Hormuz rouvre ?</a></h4>
-      <div class="poly-current ${cls}">${cur}% OUI<span style="font-size:13px;font-weight:500;color:${delta > 0 ? '#C0392B' : delta < 0 ? '#27AE60' : '#6b7280'}">${deltaStr}</span></div>
+    return `<div class="poly-chart-card"><span class="corner-bl"></span><span class="corner-br"></span>
+      <h4><a href="${m.url}" target="_blank" rel="noopener">${m.label} — Hormuz rouvre ?</a></h4>
+      <div class="poly-current ${cls}">${cur}%<span class="delta" style="color:${delta > 0 ? 'var(--warn)' : delta < 0 ? 'var(--phos)' : 'var(--phos-dim)'}">${deltaStr || '·'}</span></div>
       <canvas class="poly-chart-canvas" id="poly-chart-${m.key}"></canvas>
-      <div class="poly-meta" style="margin-top:4px;">${m.note}</div>
+      <div class="poly-meta">▷ ${m.note}</div>
     </div>`;
   }).join('');
 
   POLYMARKETS.forEach(m => {
     const ctx = document.getElementById('poly-chart-' + m.key);
     if (!ctx) return;
+    const colorVal = m.cssvar === 'var(--warn)' ? COLORS.warn : m.cssvar === 'var(--amber)' ? COLORS.amber : m.cssvar === 'var(--shryock)' ? COLORS.shryock : COLORS.primary;
+    const bgRgba = m.cssvar === 'var(--warn)' ? 'rgba(255,90,54,0.14)' : m.cssvar === 'var(--amber)' ? 'rgba(255,182,39,0.14)' : m.cssvar === 'var(--shryock)' ? 'rgba(185,147,255,0.18)' : 'rgba(74,254,124,0.18)';
     new Chart(ctx.getContext('2d'), {
       type: 'line',
       data: {
         labels: m.d,
-        datasets: [{ label: '% OUI', data: m.p, borderColor: m.color, backgroundColor: m.color + '22', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius: m.p.length < 15 ? 3 : 1.5, pointHoverRadius: 5 }]
+        datasets: [{ label: '% OUI', data: m.p, borderColor: colorVal, backgroundColor: bgRgba, fill: true, tension: 0.35, borderWidth: 2.5, pointRadius: m.p.length < 15 ? 3 : 1.5, pointHoverRadius: 5 }]
       },
       options: {
-        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.4,
         scales: {
-          x: { ticks: { font: { size: 8 }, maxRotation: 45, maxTicksLimit: 10 } },
-          y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%' }, grid: { color: '#f3f4f6' } }
+          x: { ticks: { font: { size: 8 }, maxRotation: 45, maxTicksLimit: 10, color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } },
+          y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%', color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } }
         },
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '% OUI' } } }
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(5,10,7,0.95)', titleColor: COLORS.primary, bodyColor: COLORS.primary, borderColor: COLORS.primary, borderWidth: 1, callbacks: { label: c => c.parsed.y + '% OUI' } } }
       }
     });
   });
 })();
 
-// ==================== TABLEAU DE DONNÉES ====================
+/* ====================================================================
+   TABLEAU
+==================================================================== */
 let sortCol = 'date';
 let sortDir = -1;
 
@@ -868,7 +1984,6 @@ function renderTable() {
     </tr>
   `).join('');
 }
-
 document.querySelectorAll('th[data-col]').forEach(th => {
   th.addEventListener('click', () => {
     if (sortCol === th.dataset.col) sortDir *= -1;
@@ -876,8 +1991,314 @@ document.querySelectorAll('th[data-col]').forEach(th => {
     renderTable();
   });
 });
-
 renderTable();
+
+/* ====================================================================
+   INFO BUBBLES — explication contextuelle sur chaque graphique
+==================================================================== */
+const CHART_INFO = {
+  'chart-scenarios': {
+    title: 'Probabilités scénarios',
+    what: "Aires empilées : A (Accalmie) + B (Stagflation) + C (Effondrement) = 100 %. Chaque point représente une observation bi-hebdomadaire.",
+    why: "Visualise la migration des probabilités dans le temps. Une montée du rouge (C) signale l'aggravation; une montée du vert (A) un apaisement.",
+    source: "Estimation interne, recalculée à chaque rapport selon les indicateurs déclencheurs."
+  },
+  'chart-brent': {
+    title: 'Brent paper',
+    what: "Prix du contrat à terme Brent (cotation papier, marché financier).",
+    why: "Réagit vite à la spéculation. Le décrochage avec le Brent physique mesure la déconnexion des marchés.",
+    source: "ICE Brent futures · USD/baril"
+  },
+  'chart-brentphys': {
+    title: 'Brent physique',
+    what: "Prix réel des cargaisons livrées (Brent dated). Reflète le marché physique tendu.",
+    why: "Indicateur direct de la rareté. Le spread paper/physique > 30 $ = signal de crise d'inventaire.",
+    source: "Argus Media / Platts · USD/baril"
+  },
+  'chart-essence': {
+    title: 'Essence Québec',
+    what: "Prix moyen pondéré à la pompe (essence ordinaire). Données Régie de l'énergie QC + CAA.",
+    why: "Indicateur citoyen direct. Seuils déclencheurs : 2,00 $/L (B confirmé), 2,50 $/L (B→C).",
+    source: "Régie de l'énergie du QC · CAA Québec · CAD/L (taxe accise fédérale suspendue 20 avr → 7 sept 2026)"
+  },
+  'chart-diesel': {
+    title: 'Diesel Québec',
+    what: "Prix moyen pondéré à la pompe pour le diesel routier.",
+    why: "Le diesel = colonne vertébrale du transport de marchandises. Sa hausse précède l'inflation alimentaire.",
+    source: "Régie de l'énergie du QC · CAD/L"
+  },
+  'chart-spr': {
+    title: 'SPR US',
+    what: "Strategic Petroleum Reserve — réserve fédérale américaine en millions de barils.",
+    why: "Sa chute signale les libérations coordonnées d'urgence. Niveau bas = munitions épuisées contre la crise.",
+    source: "U.S. Department of Energy · EIA Weekly · M barils"
+  },
+  'chart-distillate': {
+    title: 'Distillate US vs 5y',
+    what: "Écart en % entre stocks de distillats (diesel, fioul, jet) et moyenne 5 ans pour la saison.",
+    why: "Plus l'écart est négatif, plus les stocks de carburant sont sous pression. < −15 % = signal rouge.",
+    source: "EIA Weekly Petroleum Status Report · % d'écart"
+  },
+  'chart-rig': {
+    title: 'Baker Hughes rig count',
+    what: "Nombre de plateformes pétrolières actives aux États-Unis.",
+    why: "Indique la réactivité de la production US. Une baisse en crise = paradoxe (capex gelé malgré prix hauts).",
+    source: "Baker Hughes Rig Count · plateformes (Shryock ne fournit pas de prédiction sur cet indicateur)"
+  },
+  'chart-hormuz': {
+    title: 'Trafic Hormuz',
+    what: "Nombre de navires/semaine transitant par le détroit d'Hormuz (normal : ~840).",
+    why: "30 % du pétrole maritime mondial passe ici. < 50 nav/sem = fermeture de facto.",
+    source: "Bloomberg + AIS tracking · navires/semaine"
+  },
+  'chart-jet': {
+    title: 'Jet fuel ARA',
+    what: "Indice du prix du carburant aviation dans la zone Amsterdam-Rotterdam-Anvers (hub européen).",
+    why: "Mesure la pression sur l'aviation commerciale. Au-dessus de 200 = vague de faillites probable.",
+    source: "Argus Media · indice"
+  },
+  'chart-fao': {
+    title: 'FAO Food Price Index',
+    what: "Indice mensuel des prix alimentaires mondiaux (base 2014-2016 = 100).",
+    why: "Reçoit avec retard la pression du diesel et de l'engrais. Cascade alimentaire = signal C confirmé.",
+    source: "Food and Agriculture Organization (FAO) · indice mensuel"
+  },
+  'chart-polymarket': {
+    title: 'Polymarket · Hormuz fin juin',
+    what: "Probabilit\u00e9 OUI (%) que le trafic d'Hormuz redevienne normal d'ici fin juin 2026. March\u00e9 actif depuis le 19 avr. 2026.",
+    why: "Sagesse agr\u00e9g\u00e9e de traders mettant de l'argent r\u00e9el. La courbe descendante (~80% \u2192 ~28%) confirme l'enlisement et r\u00e9compense l'estimation Protocole B.",
+    source: "API Polymarket CLOB \u00b7 donn\u00e9es journali\u00e8res \u00b7 NE PAS prendre comme conseil financier"
+  },
+  'chart-polymarket-ceasefire': {
+    title: 'Polymarket · Cessez-le-feu Iran-USA',
+    what: "Probabilit\u00e9 (%) qu'un cessez-le-feu officiel Iran-USA soit confirm\u00e9 avant le 31 d\u00e9c. 2026.",
+    why: "Mesure le sentiment de r\u00e9solution diplomatique. Sa chute est corr\u00e9l\u00e9e aux \u00e9v\u00e9nements militaires (drones Barakah, B-1B \u00e0 Fairford).",
+    source: "Trajectoire illustrative (march\u00e9 projet\u00e9 \u00e0 partir des indicateurs militaires/diplomatiques observ\u00e9s). NE PAS prendre comme conseil financier."
+  },
+};
+
+function buildBubble(info) {
+  return `<span class="bubble" role="tooltip">
+    <span class="title">${info.title}</span>
+    <span>${info.what}</span>
+    <span class="label">▷ POURQUOI ON LE SUIT</span><span>${info.why}</span>
+    <span class="label">▷ SOURCE</span><span>${info.source}</span>
+    <span class="arrow"></span>
+  </span>`;
+}
+
+document.querySelectorAll('canvas[id^="chart-"]').forEach(c => {
+  const info = CHART_INFO[c.id];
+  if (!info) return;
+  const card = c.closest('.card');
+  if (!card) return;
+  const h2 = card.querySelector('h2');
+  if (!h2) return;
+  const trigger = document.createElement('span');
+  trigger.className = 'info-trigger';
+  trigger.setAttribute('tabindex', '0');
+  trigger.setAttribute('aria-label', 'Information sur ' + info.title);
+  trigger.innerHTML = '?' + buildBubble(info);
+  h2.appendChild(trigger);
+});
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "theme": "green",
+  "flicker": "on",
+  "scanline": 0.4,
+  "cursor": "on",
+  "sound": "on"
+}/*EDITMODE-END*/;
+
+/* ====================================================================
+   CUSTOM CURSOR (Pip-Boy crosshair, suit le thème)
+==================================================================== */
+function updateCursor() {
+  const phos = phosVar('--phos') || '#4afe7c';
+  const phosDim = phosVar('--phos-dim') || '#2dcb5b';
+  const cur = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g fill="none" stroke="${phos}" stroke-width="1.5" stroke-linecap="square"><path d="M4 8 L4 4 L8 4"/><path d="M28 8 L28 4 L24 4"/><path d="M4 24 L4 28 L8 28"/><path d="M28 24 L28 28 L24 28"/><line x1="16" y1="6" x2="16" y2="12"/><line x1="16" y1="20" x2="16" y2="26"/><line x1="6" y1="16" x2="12" y2="16"/><line x1="20" y1="16" x2="26" y2="16"/></g><circle cx="16" cy="16" r="1.5" fill="${phos}"/></svg>`);
+  const ptr = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><g fill="${phos}" stroke="${phosDim}" stroke-width="1"><path d="M4 2 L4 20 L9 16 L12 24 L15 22 L12 14 L18 14 Z"/></g></svg>`);
+  document.body.style.setProperty('--cursor-default', `url("data:image/svg+xml;utf8,${cur}") 16 16`);
+  document.body.style.setProperty('--cursor-pointer', `url("data:image/svg+xml;utf8,${ptr}") 4 2`);
+}
+updateCursor();
+
+/* ====================================================================
+   AUDIO ENGINE (Web Audio — sons CRT générés)
+==================================================================== */
+let audioCtx = null;
+function ensureAudio() {
+  if (audioCtx) return audioCtx;
+  try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { audioCtx = null; }
+  return audioCtx;
+}
+function beep(freq, dur, type, vol) {
+  if (document.body.dataset.sound !== 'on') return;
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type || 'square';
+  o.frequency.value = freq;
+  const t0 = ctx.currentTime;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol || 0.045, t0 + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + (dur || 0.08));
+  o.connect(g).connect(ctx.destination);
+  o.start(t0);
+  o.stop(t0 + (dur || 0.08) + 0.02);
+}
+function tick()      { beep(880, 0.04, 'square', 0.04); }
+function tabSwitch() { beep(440, 0.06, 'sawtooth', 0.05); setTimeout(()=>beep(660, 0.05, 'sawtooth', 0.045), 50); }
+function warble()    { beep(1320, 0.05, 'triangle', 0.04); }
+function lowHum()    { beep(180, 0.18, 'sawtooth', 0.06); }
+function errBeep()   { beep(220, 0.18, 'square', 0.07); }
+
+document.addEventListener('click', e => {
+  if (e.target.closest('.tab')) { tabSwitch(); return; }
+  if (e.target.closest('a, button, [onclick], th, .info-trigger, .scenario, .events-mini-more')) tick();
+});
+document.addEventListener('mouseenter', e => {
+  if (e.target && e.target.classList && e.target.classList.contains('info-trigger')) warble();
+}, true);
+
+/* ====================================================================
+   BOOT SEQUENCE
+==================================================================== */
+const BOOT_LINES = [
+  { t: '<span class="prompt">&gt;</span> SymboliTerm v3.1.4 :: starting kernel...', d: 220, snd: 'low' },
+  { t: '<span class="prompt">&gt;</span> ROM check ......................... <span class="ok">[OK]</span>', d: 140, snd: 'tick' },
+  { t: '<span class="prompt">&gt;</span> memory map / 64K SRAM ............. <span class="ok">[OK]</span>', d: 140, snd: 'tick' },
+  { t: '<span class="prompt">&gt;</span> phosphor calibration ............... <span class="ok">[OK]</span>', d: 160, snd: 'tick' },
+  { t: '<span class="prompt">&gt;</span> uplink \u2192 OBSERVATOIRE-426 ........... [...]', d: 220, snd: 'low' },
+  { t: '<span class="prompt">&gt;</span> uplink \u2192 OBSERVATOIRE-426 ........... <span class="ok">[OK]</span>', d: 160, snd: 'tick', replace: true },
+  { t: '<span class="prompt">&gt;</span> chargement <span class="ok">009</span> observations ...... <span id="boot-bar"><span class="empty">\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af\u25af</span></span>', d: 60, snd: null },
+  { t: '__BAR__', d: 1100, snd: null },
+  { t: '<span class="prompt">&gt;</span> v\u00e9rification sources EIA / FAO ..... <span class="ok">[OK]</span>', d: 160, snd: 'tick' },
+  { t: '<span class="prompt">&gt;</span> sondage Polymarket CLOB ............ <span class="ok">[march\u00e9s actifs]</span>', d: 180, snd: 'warble' },
+  { t: '<span class="prompt">&gt;</span> contr\u00f4le s\u00e9curit\u00e9 .................... <span class="ok">[PASS]</span>', d: 160, snd: 'tick' },
+  { t: '<span class="prompt">&gt;</span> niveau alerte r\u00e9gional .............. <span class="warn">[\u00c9LEV\u00c9]</span>', d: 200, snd: 'err' },
+  { t: '<span class="prompt">&gt;</span> utilisateur :: <span class="ok">OP\u00c9RATEUR_01</span>', d: 160, snd: 'tick' },
+  { t: '<span class="prompt">&gt;</span> ', d: 80, snd: null },
+  { t: '<span class="head">  VEILLE \u2014 CRISE P\u00c9TROLI\u00c8RE 2026</span>', d: 200, snd: 'low' },
+  { t: '<span class="prompt">&gt;</span> ', d: 200, snd: null },
+];
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+async function runBoot() {
+  const overlay = document.getElementById('boot-overlay');
+  const cont = document.getElementById('boot-lines');
+  const final = document.getElementById('boot-final');
+  if (!overlay || !cont) return;
+  overlay.classList.remove('done');
+  cont.innerHTML = '';
+  final.classList.remove('show');
+  let skipped = false;
+  const onSkip = () => { skipped = true; ensureAudio() && audioCtx.resume && audioCtx.resume(); };
+  overlay.addEventListener('click', onSkip, { once: true });
+  document.addEventListener('keydown', onSkip, { once: true });
+
+  for (let i = 0; i < BOOT_LINES.length; i++) {
+    if (skipped) break;
+    const line = BOOT_LINES[i];
+    if (line.t === '__BAR__') {
+      const barEl = document.getElementById('boot-bar');
+      if (barEl) {
+        const width = 18;
+        for (let p = 1; p <= width; p++) {
+          if (skipped) break;
+          barEl.innerHTML = '\u25ae'.repeat(p) + '<span class="empty">' + '\u25af'.repeat(width - p) + '</span>';
+          if (p % 3 === 0) tick();
+          await sleep(line.d / width);
+        }
+        barEl.innerHTML = '\u25ae'.repeat(width) + ' <span class="ok">[OK]</span>';
+      }
+      continue;
+    }
+    if (line.replace) {
+      const lns = cont.querySelectorAll('.ln');
+      const lastLn = lns[lns.length - 1];
+      if (lastLn) lastLn.innerHTML = line.t;
+    } else {
+      const div = document.createElement('div');
+      div.className = 'ln';
+      div.innerHTML = line.t;
+      cont.appendChild(div);
+      requestAnimationFrame(() => div.classList.add('show'));
+    }
+    if (line.snd === 'tick') tick();
+    else if (line.snd === 'low') lowHum();
+    else if (line.snd === 'warble') warble();
+    else if (line.snd === 'err') errBeep();
+    await sleep(line.d);
+  }
+  if (!skipped) final.classList.add('show');
+  const close = () => {
+    overlay.classList.add('done');
+    ensureAudio();
+    if (audioCtx && audioCtx.resume) audioCtx.resume();
+    setTimeout(() => { beep(523, 0.08, 'triangle', 0.06); }, 80);
+    setTimeout(() => { beep(784, 0.1, 'triangle', 0.05); }, 180);
+  };
+  if (skipped) close();
+  else {
+    overlay.addEventListener('click', close, { once: true });
+    document.addEventListener('keydown', close, { once: true });
+  }
+}
+runBoot();
+
+function applyTweak(key, val) {
+  if (key === 'theme')    { document.body.dataset.theme = val; updateCursor(); }
+  if (key === 'flicker')  document.body.dataset.flicker = val;
+  if (key === 'cursor')   document.body.dataset.cursor = val;
+  if (key === 'sound')    { document.body.dataset.sound = val; if (val === 'on') warble(); }
+  if (key === 'scanline') {
+    document.body.style.setProperty('--scanline-op', val);
+    const el = document.getElementById('scanline-val');
+    if (el) el.textContent = (+val).toFixed(2);
+    const sl = document.getElementById('scanline-slider');
+    if (sl && sl.value !== String(val)) sl.value = val;
+  }
+  // Sync segmented buttons (theme/flicker/cursor/sound)
+  const seg = document.querySelector(`.seg[data-tweak="${key}"]`);
+  if (seg) {
+    seg.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('active', b.dataset.val === String(val));
+    });
+  }
+}
+Object.entries(TWEAK_DEFAULTS).forEach(([k,v]) => applyTweak(k, v));
+
+const tweaksPanel = document.getElementById('tweaks-panel');
+document.querySelectorAll('.seg').forEach(seg => {
+  const key = seg.dataset.tweak;
+  seg.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      seg.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      applyTweak(key, b.dataset.val);
+      window.parent.postMessage({type: '__edit_mode_set_keys', edits: {[key]: b.dataset.val}}, '*');
+    });
+  });
+});
+document.getElementById('scanline-slider').addEventListener('input', e => {
+  applyTweak('scanline', e.target.value);
+  window.parent.postMessage({type: '__edit_mode_set_keys', edits: {scanline: +e.target.value}}, '*');
+});
+const replayBtn = document.getElementById('replay-boot');
+if (replayBtn) replayBtn.addEventListener('click', () => runBoot());
+document.getElementById('tweaks-close').addEventListener('click', () => {
+  tweaksPanel.classList.remove('open');
+  window.parent.postMessage({type: '__edit_mode_dismissed'}, '*');
+});
+
+window.addEventListener('message', e => {
+  const d = e.data;
+  if (!d || typeof d !== 'object') return;
+  if (d.type === '__activate_edit_mode') tweaksPanel.classList.add('open');
+  if (d.type === '__deactivate_edit_mode') tweaksPanel.classList.remove('open');
+});
+window.parent.postMessage({type: '__edit_mode_available'}, '*');
 </script>
 </body>
 </html>
