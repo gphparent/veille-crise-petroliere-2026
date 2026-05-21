@@ -1303,17 +1303,29 @@ body[data-cursor="on"] input[type=range] { cursor: var(--cursor-pointer), grab; 
     </div>
     <div class="card">
       <span class="corner-bl"></span><span class="corner-br"></span>
-      <h2>Polymarket · Hormuz fin juin <span class="source">// % OUI ROUVRE</span></h2>
-      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">Marché actif depuis le 19 avr. 2026 · <a href="https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june" target="_blank" style="color:var(--shryock);">VOIR ▶</a></div>
-      <div class="latest" id="latest-poly-hormuz">—</div>
-      <canvas id="chart-polymarket"></canvas>
+      <h2>Polymarket · Hormuz fin juin <span class="source">// LIVE</span></h2>
+      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">Données en temps réel depuis Polymarket · <a href="https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june" target="_blank" style="color:var(--shryock);">VOIR ▶</a></div>
+      <div style="margin:0 -4px;border-radius:6px;overflow:hidden;">
+        <iframe
+          title="polymarket-market-iframe"
+          src="https://embed.polymarket.com/market?market=strait-of-hormuz-traffic-returns-to-normal-by-end-of-june&theme=dark"
+          width="100%" height="300" frameborder="0" allowtransparency="true"
+          style="display:block;border:none;background:transparent;">
+        </iframe>
+      </div>
     </div>
     <div class="card">
       <span class="corner-bl"></span><span class="corner-br"></span>
-      <h2>Polymarket · Cessez-le-feu Iran-USA <span class="source">// % OUI D'ICI 31 DÉC.</span></h2>
-      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">Marché projeté (illustratif) · sentiment de résolution diplomatique</div>
-      <div class="latest" id="latest-poly-ceasefire">—</div>
-      <canvas id="chart-polymarket-ceasefire"></canvas>
+      <h2>Polymarket · Hormuz 31 déc. <span class="source">// LIVE</span></h2>
+      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">Données en temps réel depuis Polymarket · <a href="https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-december-31" target="_blank" style="color:var(--shryock);">VOIR ▶</a></div>
+      <div style="margin:0 -4px;border-radius:6px;overflow:hidden;">
+        <iframe
+          title="polymarket-market-iframe"
+          src="https://embed.polymarket.com/market?market=strait-of-hormuz-traffic-returns-to-normal-by-december-31&theme=dark"
+          width="100%" height="300" frameborder="0" allowtransparency="true"
+          style="display:block;border:none;background:transparent;">
+        </iframe>
+      </div>
     </div>
   </div>
 </div>
@@ -1840,78 +1852,7 @@ const POLYMARKETS = [
   { key: 'cease',  label: "Cessez-le-feu Iran-USA", d: POLY_CEASE_D, p: POLY_CEASE_P, cssvar: 'var(--shryock)', url: '#', note: 'Trajectoire illustrative — sentiment de résolution diplomatique déclinant avec l’escalade.', illustrative: true },
 ];
 
-(function renderPolyFront() {
-  // Aligner les Polymarket sur la même échelle de dates que les autres charts
-  function alignToAllDates(dateArr, valArr) {
-    const map = {};
-    dateArr.forEach((d, i) => { map[d] = valArr[i]; });
-    return allDates.map(d => map[d] != null ? map[d] : null);
-  }
-
-  // ====== Carte 1 : Hormuz Fin juin ======
-  const ctx1 = document.getElementById('chart-polymarket');
-  if (ctx1) {
-    const cur = POLY_JUNE30_P[POLY_JUNE30_P.length - 1];
-    const prevV = POLY_JUNE30_P[POLY_JUNE30_P.length - 2];
-    const delta = Math.round((cur - prevV) * 10) / 10;
-    const arrow = delta > 0 ? '\u25b2 +' : delta < 0 ? '\u25bc ' : '\u00b7 ';
-    const deltaTxt = delta === 0 ? '' : `<span class="trend ${delta > 0 ? 'up' : 'down'}">${arrow}${Math.abs(delta)} pts</span>`;
-    const lbl = document.getElementById('latest-poly-hormuz');
-    if (lbl) lbl.innerHTML = `<strong>${cur}% OUI</strong> ${deltaTxt}`;
-    new Chart(ctx1.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: allDates,
-        datasets: [{ label: '% OUI · Hormuz rouvre fin juin', data: alignToAllDates(POLY_JUNE30_D, POLY_JUNE30_P), borderColor: COLORS.amber, backgroundColor: 'rgba(255,182,39,0.18)', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, spanGaps: true }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true, aspectRatio: 2,
-        spanGaps: true,
-        scales: {
-          x: { ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45, color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } },
-          y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%', color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: { backgroundColor: 'rgba(5,10,7,0.95)', titleColor: COLORS.primary, bodyColor: COLORS.primary, borderColor: COLORS.primary, borderWidth: 1, callbacks: { label: c => c.parsed.y + '% OUI' } }
-        },
-        interaction: { mode: 'nearest', axis: 'x', intersect: false }
-      }
-    });
-  }
-
-  // ====== Carte 2 : Cessez-le-feu Iran-USA ======
-  const ctx2 = document.getElementById('chart-polymarket-ceasefire');
-  if (ctx2) {
-    const cur = POLY_CEASE_P[POLY_CEASE_P.length - 1];
-    const prevV = POLY_CEASE_P[POLY_CEASE_P.length - 2];
-    const delta = Math.round((cur - prevV) * 10) / 10;
-    const arrow = delta > 0 ? '\u25b2 +' : delta < 0 ? '\u25bc ' : '\u00b7 ';
-    const deltaTxt = delta === 0 ? '' : `<span class="trend ${delta < 0 ? 'up' : 'down'}">${arrow}${Math.abs(delta)} pts</span>`;
-    const lbl = document.getElementById('latest-poly-ceasefire');
-    if (lbl) lbl.innerHTML = `<strong>${cur}% OUI</strong> ${deltaTxt}`;
-    new Chart(ctx2.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: allDates,
-        datasets: [{ label: '% OUI · cessez-le-feu d\'ici 31 d\u00e9c.', data: alignToAllDates(POLY_CEASE_D, POLY_CEASE_P), borderColor: COLORS.shryock, backgroundColor: 'rgba(185,147,255,0.18)', fill: true, tension: 0.35, borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, spanGaps: true }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true, aspectRatio: 2,
-        spanGaps: true,
-        scales: {
-          x: { ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45, color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } },
-          y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%', color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: { backgroundColor: 'rgba(5,10,7,0.95)', titleColor: COLORS.shryock, bodyColor: COLORS.primary, borderColor: COLORS.shryock, borderWidth: 1, callbacks: { label: c => c.parsed.y + '% OUI' } }
-        },
-        interaction: { mode: 'nearest', axis: 'x', intersect: false }
-      }
-    });
-  }
-})();
+/* renderPolyFront removed — les graphiques Polymarket utilisent maintenant des iframes embed officielles */
 
 (function renderPolymarket() {
   const snapshot = document.getElementById('poly-snapshot');
@@ -2070,18 +2011,7 @@ const CHART_INFO = {
     why: "Reçoit avec retard la pression du diesel et de l'engrais. Cascade alimentaire = signal C confirmé.",
     source: "Food and Agriculture Organization (FAO) · indice mensuel"
   },
-  'chart-polymarket': {
-    title: 'Polymarket · Hormuz fin juin',
-    what: "Probabilit\u00e9 OUI (%) que le trafic d'Hormuz redevienne normal d'ici fin juin 2026. March\u00e9 actif depuis le 19 avr. 2026.",
-    why: "Sagesse agr\u00e9g\u00e9e de traders mettant de l'argent r\u00e9el. La courbe descendante (~80% \u2192 ~28%) confirme l'enlisement et r\u00e9compense l'estimation Protocole B.",
-    source: "API Polymarket CLOB \u00b7 donn\u00e9es journali\u00e8res \u00b7 NE PAS prendre comme conseil financier"
-  },
-  'chart-polymarket-ceasefire': {
-    title: 'Polymarket · Cessez-le-feu Iran-USA',
-    what: "Probabilit\u00e9 (%) qu'un cessez-le-feu officiel Iran-USA soit confirm\u00e9 avant le 31 d\u00e9c. 2026.",
-    why: "Mesure le sentiment de r\u00e9solution diplomatique. Sa chute est corr\u00e9l\u00e9e aux \u00e9v\u00e9nements militaires (drones Barakah, B-1B \u00e0 Fairford).",
-    source: "Trajectoire illustrative (march\u00e9 projet\u00e9 \u00e0 partir des indicateurs militaires/diplomatiques observ\u00e9s). NE PAS prendre comme conseil financier."
-  },
+
 };
 
 function buildBubble(info) {
