@@ -1303,29 +1303,17 @@ body[data-cursor="on"] input[type=range] { cursor: var(--cursor-pointer), grab; 
     </div>
     <div class="card">
       <span class="corner-bl"></span><span class="corner-br"></span>
-      <h2>Polymarket · Hormuz fin juin <span class="source">// LIVE</span></h2>
-      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">Données en temps réel depuis Polymarket · <a href="https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june" target="_blank" style="color:var(--shryock);">VOIR ▶</a></div>
-      <div style="margin:0 -4px;border-radius:6px;overflow:hidden;">
-        <iframe
-          title="polymarket-market-iframe"
-          src="https://embed.polymarket.com/market?market=strait-of-hormuz-traffic-returns-to-normal-by-end-of-june&theme=dark"
-          width="100%" height="300" frameborder="0" allowtransparency="true"
-          style="display:block;border:none;background:transparent;">
-        </iframe>
-      </div>
+      <h2>Polymarket · Hormuz fin juin <span class="source">// % OUI · LIVE</span></h2>
+      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">API Polymarket CLOB · données temps réel · <a href="https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june" target="_blank" style="color:var(--shryock);">VOIR ▶</a></div>
+      <div class="latest" id="latest-poly-hormuz">—</div>
+      <canvas id="chart-polymarket"></canvas>
     </div>
     <div class="card">
       <span class="corner-bl"></span><span class="corner-br"></span>
-      <h2>Polymarket · Hormuz 31 déc. <span class="source">// LIVE</span></h2>
-      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">Données en temps réel depuis Polymarket · <a href="https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-december-31" target="_blank" style="color:var(--shryock);">VOIR ▶</a></div>
-      <div style="margin:0 -4px;border-radius:6px;overflow:hidden;">
-        <iframe
-          title="polymarket-market-iframe"
-          src="https://embed.polymarket.com/market?market=strait-of-hormuz-traffic-returns-to-normal-by-december-31&theme=dark"
-          width="100%" height="300" frameborder="0" allowtransparency="true"
-          style="display:block;border:none;background:transparent;">
-        </iframe>
-      </div>
+      <h2>Polymarket · Hormuz 31 déc. <span class="source">// % OUI · LIVE</span></h2>
+      <div style="font-size:11px;color:var(--phos-dim);margin-bottom:6px;letter-spacing:0.1em;">API Polymarket CLOB · données temps réel · <a href="https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-december-31" target="_blank" style="color:var(--shryock);">VOIR ▶</a></div>
+      <div class="latest" id="latest-poly-dec31">—</div>
+      <canvas id="chart-polymarket-ceasefire"></canvas>
     </div>
   </div>
 </div>
@@ -1852,7 +1840,116 @@ const POLYMARKETS = [
   { key: 'cease',  label: "Cessez-le-feu Iran-USA", d: POLY_CEASE_D, p: POLY_CEASE_P, cssvar: 'var(--shryock)', url: '#', note: 'Trajectoire illustrative — sentiment de résolution diplomatique déclinant avec l’escalade.', illustrative: true },
 ];
 
-/* renderPolyFront removed — les graphiques Polymarket utilisent maintenant des iframes embed officielles */
+(async function renderPolyFront() {
+  /* =====================================================================
+     POLYMARKET LIVE — fetch API CLOB (CORS ouvert, fidelity=1440 = 1 pt/jour)
+     Tokens YES : June30 & Dec31. Aligné sur allDates (même axe X que tous les autres charts).
+     Fallback sur données statiques POLY_JUNE30_* / POLY_DEC31_* si API indisponible.
+  ===================================================================== */
+  const JUNE30_TOKEN = '46130022848920611732202507184264902690726361824951579816156441452797397798181';
+  const DEC31_TOKEN  = '83783489454659420807679723574840032660002326710045123865554753994450797728825';
+  const CLOB_BASE    = 'https://clob.polymarket.com/prices-history?interval=max&fidelity=1440&market=';
+
+  /* Convertit un tableau [{t,p}] en map date→% (dernier point par jour gardé) */
+  function histToMap(history) {
+    const map = {};
+    history.forEach(pt => {
+      const d = new Date(pt.t * 1000).toISOString().slice(0, 10);
+      map[d] = Math.round(pt.p * 1000) / 10; // → %
+    });
+    return map;
+  }
+
+  /* Aligne un map date→% sur allDates (null si absent = spanGaps) */
+  function alignMap(map) {
+    return allDates.map(d => map[d] != null ? map[d] : null);
+  }
+
+  /* Fetch avec timeout 8 s */
+  async function fetchHistory(token) {
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 8000);
+      const r = await fetch(CLOB_BASE + token, { signal: ctrl.signal });
+      if (!r.ok) return null;
+      const d = await r.json();
+      return d.history && d.history.length > 0 ? d.history : null;
+    } catch { return null; }
+  }
+
+  /* Construit un Chart.js line chart dans le style CRT */
+  function buildChart(ctxEl, alignedData, color, bgRgba, label) {
+    return new Chart(ctxEl.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: allDates,
+        datasets: [{
+          label,
+          data: alignedData,
+          borderColor: color,
+          backgroundColor: bgRgba,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          spanGaps: true
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2, spanGaps: true,
+        scales: {
+          x: { ticks: { font: { size: 8 }, maxRotation: 45, minRotation: 45, color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } },
+          y: { min: 0, max: 100, ticks: { font: { size: 9 }, callback: v => v + '%', color: COLORS.dim }, grid: { color: 'rgba(74,254,124,0.06)' }, border: { color: COLORS.dim } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: 'rgba(5,10,7,0.95)', titleColor: color, bodyColor: COLORS.primary, borderColor: color, borderWidth: 1, callbacks: { label: c => (c.parsed.y != null ? c.parsed.y.toFixed(1) : '—') + '% OUI' } }
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+      }
+    });
+  }
+
+  /* Met à jour le badge "latest" avec valeur courante + delta */
+  function updateBadge(elId, cur, prev) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const delta = Math.round((cur - prev) * 10) / 10;
+    const arrow = delta > 0 ? '▲ +' : delta < 0 ? '▼ ' : '· ';
+    const cls   = delta > 0 ? 'up' : delta < 0 ? 'down' : '';
+    const dTxt  = delta !== 0 ? `<span class="trend ${cls}">${arrow}${Math.abs(delta)} pts</span>` : '';
+    el.innerHTML = `<strong>${cur.toFixed(1)}% OUI</strong> <span style="color:var(--phos-dim);font-size:10px;">● LIVE</span> ${dTxt}`;
+  }
+
+  /* ---- Fetch parallèle ---- */
+  const [june30Hist, dec31Hist] = await Promise.all([
+    fetchHistory(JUNE30_TOKEN),
+    fetchHistory(DEC31_TOKEN)
+  ]);
+
+  /* ---- Chart 1 : Hormuz fin juin ---- */
+  const ctx1 = document.getElementById('chart-polymarket');
+  if (ctx1) {
+    const hist  = june30Hist || POLY_JUNE30_D.map((d, i) => ({ t: new Date(d).getTime()/1000, p: POLY_JUNE30_P[i]/100 }));
+    const map   = histToMap(hist);
+    const cur   = hist[hist.length - 1].p * 100;
+    const prev  = hist.length > 1 ? hist[hist.length - 2].p * 100 : cur;
+    updateBadge('latest-poly-hormuz', cur, prev);
+    buildChart(ctx1, alignMap(map), COLORS.amber, 'rgba(255,182,39,0.18)', '% OUI · Hormuz rouvre fin juin');
+  }
+
+  /* ---- Chart 2 : Hormuz 31 déc. ---- */
+  const ctx2 = document.getElementById('chart-polymarket-ceasefire');
+  if (ctx2) {
+    const hist  = dec31Hist || POLY_DEC31_D.map((d, i) => ({ t: new Date(d).getTime()/1000, p: POLY_DEC31_P[i]/100 }));
+    const map   = histToMap(hist);
+    const cur   = hist[hist.length - 1].p * 100;
+    const prev  = hist.length > 1 ? hist[hist.length - 2].p * 100 : cur;
+    updateBadge('latest-poly-dec31', cur, prev);
+    buildChart(ctx2, alignMap(map), COLORS.primary, 'rgba(74,254,124,0.18)', '% OUI · Hormuz rouvre 31 déc.');
+  }
+})();
 
 (function renderPolymarket() {
   const snapshot = document.getElementById('poly-snapshot');
@@ -2004,6 +2101,18 @@ const CHART_INFO = {
     what: "Indice du prix du carburant aviation dans la zone Amsterdam-Rotterdam-Anvers (hub européen).",
     why: "Mesure la pression sur l'aviation commerciale. Au-dessus de 200 = vague de faillites probable.",
     source: "Argus Media · indice"
+  },
+  'chart-polymarket': {
+    title: 'Polymarket · Hormuz fin juin',
+    what: "Probabilit\u00e9 OUI (%) que le trafic d'Hormuz redevienne normal d'ici fin juin 2026. Source : API Polymarket CLOB en temps r\u00e9el.",
+    why: "Sagesse agr\u00e9g\u00e9e de traders mettant de l'argent r\u00e9el. La courbe descendante (~80 % → ~33 %) confirme l'enlisement et r\u00e9compense l'estimation Protocole B.",
+    source: "API Polymarket CLOB \u00b7 donn\u00e9es journali\u00e8res live \u00b7 NE PAS prendre comme conseil financier"
+  },
+  'chart-polymarket-ceasefire': {
+    title: 'Polymarket · Hormuz 31 d\u00e9c.',
+    what: "Probabilit\u00e9 OUI (%) que le trafic d'Hormuz redevienne normal avant le 31 d\u00e9c. 2026.",
+    why: "Indicateur de l'horizon de r\u00e9solution. Signal compl\u00e9mentaire au march\u00e9 fin juin.",
+    source: "API Polymarket CLOB \u00b7 donn\u00e9es journali\u00e8res live \u00b7 NE PAS prendre comme conseil financier"
   },
   'chart-fao': {
     title: 'FAO Food Price Index',
